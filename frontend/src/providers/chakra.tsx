@@ -1,16 +1,22 @@
-import {
-  ChakraBaseProvider,
-  extendTheme,
-  theme as chakraTheme,
-  StyleFunctionProps,
-} from "@chakra-ui/react";
-import { ReactNode } from "react";
+import { ChakraProvider } from "@chakra-ui/react";
+import isEmpty from "just-is-empty";
+import { ReactNode, useEffect } from "react";
+import theme from "src/config/theme";
+import { useAppContext } from "src/context/state";
+import { useAccount } from "wagmi";
 
-const config = {
-  initialColorMode: "dark",
-  useSystemColorMode: false,
-};
+export function AppChakraProvider({ children }: { children: ReactNode }) {
+  const { address: connectedAddress } = useAccount();
+  const { setAddress, setIsAuthenticated } = useAppContext();
+  useEffect(() => {
+    if (connectedAddress) {
+      setAddress(connectedAddress);
+    } else {
+      setAddress("");
+    }
+    const isAuth = !isEmpty(connectedAddress);
+    setIsAuthenticated(isAuth);
+  }, [connectedAddress, setAddress, setIsAuthenticated]);
 
-// export function AppChakraProvider({ children }: { children: ReactNode }) {
-//   return <ChakraBaseProvider theme={theme}>{children}</ChakraBaseProvider>;
-// }
+  return <ChakraProvider theme={theme}>{children}</ChakraProvider>;
+}

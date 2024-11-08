@@ -1,3 +1,5 @@
+import { Session } from "next-auth";
+
 export type APIResponse<T> = {
   data: T | null;
   message?: string;
@@ -69,3 +71,8 @@ export type Supplement = {
   title: string;
   updatedAt: string;
 };
+export interface NextAuthSession extends Session {
+  id_token?: string;
+}
+
+export type USER_ACCOUNT_TYPE = "WALLET" | "GOOGLE" | null;

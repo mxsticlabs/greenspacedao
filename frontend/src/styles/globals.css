@@ -32,6 +32,7 @@
 */
 .gs-datepicker-popper {
   z-index: 6;
+  color: #ac7e13;
 }
 .gs-datepicker {
   border-radius: 12px;

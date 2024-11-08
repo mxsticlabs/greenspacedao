@@ -17,6 +17,10 @@ import { Provider as ReduxProvider } from "react-redux";
 import { HuddleClient } from "@huddle01/web-core";
 import { HuddleProvider } from "@huddle01/react";
 import { useEffect } from "react";
+import OktoNextAuthProvider from "src/providers/okto-next-auth";
+import { NextAuthSession } from "src/types";
+import { AppChakraProvider } from "src/providers/chakra";
+import { AppContextProvider } from "src/context/state";
 const huddleClient = new HuddleClient({
   projectId: process.env.NEXT_PUBLIC_HUDDLE_PROJECT_ID!,
   options: {
@@ -29,7 +33,10 @@ const huddleClient = new HuddleClient({
 
 const queryClient = new QueryClient();
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({
+  Component,
+  pageProps: { session, ...pageProps }
+}: AppProps<{ session: NextAuthSession }>) {
   return (
     <>
       <style jsx global>
@@ -39,32 +46,36 @@ export default function App({ Component, pageProps }: AppProps) {
           }
         `}
       </style>
-      <WagmiProvider config={config}>
-        <PrivyProvider
-          appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID!}
-          config={{
-            appearance: {
-              theme: "dark"
-            }
-          }}
-        >
-          <ReduxProvider store={store}>
-            <QueryClientProvider client={queryClient}>
-              <ThirdwebProvider clientId="7d6dd3b28e4d16bb007c78b1f6c90b04" activeChain="sepolia">
-                <HuddleProvider client={huddleClient}>
-                  <ChakraProvider theme={theme}>
-                    {/* <WalletProvider> */}
+      <OktoNextAuthProvider session={session}>
+        <AppContextProvider>
+          <WagmiProvider config={config}>
+            <PrivyProvider
+              appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID!}
+              config={{
+                appearance: {
+                  theme: "light"
+                }
+              }}
+            >
+              <ReduxProvider store={store}>
+                <QueryClientProvider client={queryClient}>
+                  <ThirdwebProvider clientId="7d6dd3b28e4d16bb007c78b1f6c90b04" activeChain="sepolia">
+                    <HuddleProvider client={huddleClient}>
+                      <AppChakraProvider>
+                        {/* <WalletProvider> */}
 
-                    <ColorModeToggle />
-                    <Component {...pageProps} />
-                    {/* </WalletProvider> */}
-                  </ChakraProvider>
-                </HuddleProvider>
-              </ThirdwebProvider>
-            </QueryClientProvider>
-          </ReduxProvider>
-        </PrivyProvider>
-      </WagmiProvider>
+                        <ColorModeToggle />
+                        <Component {...pageProps} />
+                        {/* </WalletProvider> */}
+                      </AppChakraProvider>
+                    </HuddleProvider>
+                  </ThirdwebProvider>
+                </QueryClientProvider>
+              </ReduxProvider>
+            </PrivyProvider>
+          </WagmiProvider>
+        </AppContextProvider>
+      </OktoNextAuthProvider>
     </>
   );
 }
@@ -73,7 +84,7 @@ function ColorModeToggle() {
 
   useEffect(() => {
     const handleKeyCommand = (event: KeyboardEvent) => {
-      if (event.key === "m") {
+      if (event.ctrlKey && event.key === "m") {
         toggleColorMode();
       }
     };

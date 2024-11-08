@@ -4,15 +4,15 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { FiLogOut } from "react-icons/fi";
 import { useDisconnect } from "wagmi";
+import { signOut } from "next-auth/react";
 
 export const LogoutButton = ({ as = "menuitem" }: { as: "menuitem" | "button" }) => {
-  const { logout } = useLogout();
   const [isLoading, setIsLoading] = useState(false);
   const { disconnectAsync } = useDisconnect();
   const router = useRouter();
   async function handleLogout() {
     setIsLoading(true);
-    await logout();
+    await signOut();
     await disconnectAsync();
     setIsLoading(false);
     router.push("/");
@@ -20,7 +20,7 @@ export const LogoutButton = ({ as = "menuitem" }: { as: "menuitem" | "button" })
   return (
     <>
       {as === "button" && (
-        <Button isLoading={isLoading} flex={1} colorScheme="red" gap={3} onClick={handleLogout}>
+        <Button isLoading={isLoading} rounded={"full"} flex={1} colorScheme="red" gap={3} onClick={handleLogout}>
           <FiLogOut /> Logout
         </Button>
       )}

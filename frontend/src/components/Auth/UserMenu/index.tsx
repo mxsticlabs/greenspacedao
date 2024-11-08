@@ -17,12 +17,15 @@ import { usePrivy } from "@privy-io/react-auth";
 import { useGetUserQuery, useLazyGetUserQuery } from "src/state/services";
 import BoringAvatar from "boring-avatars";
 import { useCallback, useEffect, useState } from "react";
-import { USER } from "src/state/types";
+// import { USER } from "src/state/types";
+import { useInAppAuth } from "src/hooks/common";
+import { User } from "next-auth";
+
 export const UserMenu = () => {
-  const { user, ready } = usePrivy();
+  const { user, ready } = useInAppAuth();
   const [getUser, { isLoading }] = useLazyGetUserQuery();
   const getFirstName = (name: string) => name?.split?.(" ")[0];
-  const [savedUser, setSavedUser] = useState<USER | undefined>();
+  const [savedUser, setSavedUser] = useState<User | undefined>();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMember, setIsMember] = useState(false);
   const [isNutritionist, setIsNutritionist] = useState(false);
@@ -32,7 +35,7 @@ export const UserMenu = () => {
     const fetchUser = async () => {
       if (ready && !user) return;
 
-      await getUserCb({ usernameOrAuthId: user?.id as string }, true)
+      await getUserCb({ usernameOrAuthId: user?.id + "" }, true)
         .unwrap()
         .then((response) => {
           const savedUser = response.data!;
@@ -74,7 +77,7 @@ export const UserMenu = () => {
           >
             <HStack>
               <Text as={"span"}>Hi, {getFirstName(savedUser?.fullName!)}</Text>
-              <Avatar size={"sm"} name={savedUser?.fullName!} src={savedUser?.avatar}></Avatar>{" "}
+              <Avatar size={"sm"} name={savedUser?.fullName!} src={savedUser?.avatar || ""}></Avatar>{" "}
               {/* <BsChevronDown /> */}
             </HStack>
           </MenuButton>
@@ -98,12 +101,11 @@ export const UserMenu = () => {
               )}
             </MenuGroup>
             <MenuDivider />
-
-            <LogoutButton as={"menuitem"} />
           </MenuList>
           {/* </Portal> */}
         </Menu>
       )}
+      <LogoutButton as={"button"} />
     </>
   );
 };

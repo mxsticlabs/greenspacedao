@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 function envConfigs() {
   const {
     APP_DOMAIN = "GreenspaceDAO",
@@ -19,7 +21,7 @@ function envConfigs() {
     PUSHER_APP_ID,
     PUSHER_SECRET,
     NEXT_PUBLIC_PUSHER_KEY,
-    NEXT_PUBLIC_PUSHER_CLUSTER,
+    NEXT_PUBLIC_PUSHER_CLUSTER
   } = process.env;
 
   return {
@@ -41,7 +43,7 @@ function envConfigs() {
     PUSHER_APP_ID,
     PUSHER_SECRET,
     PUSHER_KEY: NEXT_PUBLIC_PUSHER_KEY,
-    PUSHER_CLUSTER: NEXT_PUBLIC_PUSHER_CLUSTER,
+    PUSHER_CLUSTER: NEXT_PUBLIC_PUSHER_CLUSTER
   };
 }
 export const ENV_CONFIG = envConfigs();

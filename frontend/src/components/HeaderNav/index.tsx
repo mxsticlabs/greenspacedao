@@ -19,13 +19,15 @@ import {
 } from "@chakra-ui/react";
 import { Link } from "@chakra-ui/next-js";
 import { LuMenu } from "react-icons/lu";
-import { useResize } from "src/hooks/common";
+import { useInAppAuth, useResize } from "src/hooks/common";
 import { useColorMode } from "@chakra-ui/react";
 import { ConnectOrLogout } from "../Auth/ConnectOrRegister";
 import RegisterForm from "../RegisterForm";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { RegisterButton } from "../Auth/RegisterButton";
 import { usePrivy } from "@privy-io/react-auth";
+import { CustomConnectButton } from "../Auth/ConnectButton";
+import { useAppContext } from "src/context/state";
 
 export function HeaderNav() {
   const { isMobileSize, isTabletSize } = useResize();
@@ -33,7 +35,10 @@ export function HeaderNav() {
   const { isOpen: isMobileNavbarOpen, onToggle: onMobileNavbarToggle, onClose: onMobileNavbarClose } = useDisclosure();
   const { colorMode } = useColorMode();
 
-  const { user, ready } = usePrivy();
+  const { user, ready } = useInAppAuth();
+  const { isAuthenticated, address } = useAppContext();
+  console.log({ address });
+
   const { scrollY } = useScroll();
   const headerOpacity = useTransform(scrollY, [0, 50], [0.8, 1]);
   const headerY = useTransform(scrollY, [0, 50], [0, -10]);
@@ -75,23 +80,23 @@ export function HeaderNav() {
 
   const links = [
     <>
-      <ListItem>
+      <ListItem key={0}>
         <Link {...linkStyles} href={"/blog"}>
           Blog
         </Link>
       </ListItem>
-      <ListItem>
+      <ListItem key={3}>
         <Link {...linkStyles} href={"/communities"}>
           Communities
         </Link>
       </ListItem>
-      <ListItem>
+      <ListItem key={1}>
         <Link {...linkStyles} href={"/proposals"}>
           Governance
         </Link>
       </ListItem>
 
-      <ListItem>
+      <ListItem key={2}>
         <Link {...linkStyles} href={"/shop/supplements"}>
           Shop
         </Link>
@@ -121,6 +126,7 @@ export function HeaderNav() {
           </List>
 
           <HStack px={4} py={2} h={"full"} justify={"flex-end"}>
+            {!isAuthenticated && <CustomConnectButton />}
             {!(isMobileSize || isTabletSize) && (
               <>
                 <ConnectOrLogout openModal={onOpen} />

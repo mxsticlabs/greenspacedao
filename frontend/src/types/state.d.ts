@@ -1,3 +1,5 @@
+import { USER_ACCOUNT_TYPE } from ".";
+
 export interface IAddressToken {
   Link: string;
   Usdt: string;
@@ -10,6 +12,10 @@ export interface IAddressData {
 }
 
 export type stateContextType = {
+  accountType: USER_ACCOUNT_TYPE;
+  setAccountType: (data: USER_ACCOUNT_TYPE) => void;
+  isAuthenticated: boolean;
+  setIsAuthenticated: (data: boolean) => void;
   address: string;
   allTokensData: any;
   loading: boolean;

@@ -1,15 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 
-import { USER_SESSION } from "src/state/types";
+// import { USER_SESSION } from "src/state/types";
 
 import { apiPost } from "src/utils";
-type UpdateSession = (data?: any) => Promise<USER_SESSION | null>;
+// type UpdateSession = (data?: any) => Promise<USER_SESSION | null>;
 
 import { useAccount, useConnect, useSignMessage, useDisconnect } from "wagmi";
 import { usePrivy } from "@privy-io/react-auth";
 
 import TurndownService from "turndown";
+import { useNextAuthSession } from "src/providers/okto-next-auth";
 
 export const useLocalStorage = <T>(key: string, initialValue: T) => {
   const [storedValue, setStoredValue] = useState<T>(() => {
@@ -125,19 +126,22 @@ export const useScrollToBottom = (triggerOnLoad = false) => {
  * Used to check if the user is logged in
  * @returns
  */
-export const useInAppAuth = () => {
-  const { ready, user, login } = usePrivy();
+export const useInAppAuth = ({ openModal }: { openModal?: () => void } = {}) => {
+  // const { ready, user, login } = usePrivy();
+  const { status, data: session } = useNextAuthSession();
 
   function connect() {
-    if (!user) {
-      login();
+    if (!session?.user) {
+      openModal?.();
     }
   }
-  useEffect(() => {}, [user, ready]);
+  useEffect(() => {}, [session?.user, session?.id_token, status]);
   return {
-    user,
+    user: session?.user,
+    idToken: session?.id_token,
     connect,
-    isLoggedIn: !!user
+    ready: status !== "loading",
+    isLoggedIn: !!session?.user
   };
 };
 
