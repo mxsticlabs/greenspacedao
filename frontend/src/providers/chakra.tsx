@@ -155,16 +155,14 @@ export function AppChakraProvider({ children }: { children: ReactNode }) {
   }, [shouldUpdateAddress, connectedAddress, mutate, setAddress, setIsAuthenticated]);
 
   // Memoized callback with all dependencies
-  const getUserCb = useCallback(getUser, [getUser]);
+  const getUserCb = useCallback(getUser, [user, getUser]);
 
-  // Added cleanup and error handling
   useEffect(() => {
-    let mounted = true;
     const fetchUser = async () => {
       if (!user?.username && !address) return;
       try {
-        const response = await getUserCb({ usernameOrAuthId: address || (user?.username as string) }, true).unwrap();
-        if (mounted && response.data) {
+        const response = await getUserCb({ usernameOrAuthId: address || (user?.username as string) }).unwrap();
+        if (response.data) {
           setCurrentUser(response.data);
         }
       } catch (error) {
@@ -172,9 +170,6 @@ export function AppChakraProvider({ children }: { children: ReactNode }) {
       }
     };
     fetchUser();
-    return () => {
-      mounted = false;
-    };
   }, [user?.username, getUserCb, address, setCurrentUser]);
   return <ChakraProvider theme={theme}>{children}</ChakraProvider>;
 }

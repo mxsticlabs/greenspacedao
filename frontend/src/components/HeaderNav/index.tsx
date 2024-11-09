@@ -14,8 +14,7 @@ import {
   ListItem,
   useDisclosure,
   Box,
-  ResponsiveValue,
-  Button
+  ResponsiveValue
 } from "@chakra-ui/react";
 import { Link } from "@chakra-ui/next-js";
 import { LuMenu } from "react-icons/lu";
@@ -25,10 +24,7 @@ import { ConnectOrLogout } from "../Auth/ConnectOrRegister";
 import RegisterForm from "../RegisterForm";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { RegisterButton } from "../Auth/RegisterButton";
-import { usePrivy } from "@privy-io/react-auth";
-import { CustomConnectButton } from "../Auth/ConnectButton";
 import { useAppContext } from "src/context/state";
-import { LogoutButton } from "../Auth/Logout";
 
 export function HeaderNav() {
   const { isMobileSize, isTabletSize } = useResize();
@@ -38,7 +34,6 @@ export function HeaderNav() {
 
   const { user, ready } = useInAppAuth();
   const { isAuthenticated, address } = useAppContext();
-  console.log({ address });
 
   const { scrollY } = useScroll();
   const headerOpacity = useTransform(scrollY, [0, 50], [0.8, 1]);
@@ -80,31 +75,33 @@ export function HeaderNav() {
   };
 
   const links = [
-    <>
-      <ListItem key={0}>
-        <Link {...linkStyles} href={"/blog"}>
-          Blog
-        </Link>
-      </ListItem>
-      <ListItem key={3}>
-        <Link {...linkStyles} href={"/communities"}>
-          Communities
-        </Link>
-      </ListItem>
-      <ListItem key={1}>
-        <Link {...linkStyles} href={"/proposals"}>
-          Governance
-        </Link>
-      </ListItem>
-
-      <ListItem key={2}>
-        <Link {...linkStyles} href={"/shop/supplements"}>
-          Shop
-        </Link>
-      </ListItem>
-    </>
-  ];
-
+    {
+      id: 0,
+      label: "Blog",
+      href: "/blog"
+    },
+    {
+      id: 1,
+      label: "Communities",
+      href: "/communities"
+    },
+    {
+      id: 2,
+      label: "Governance",
+      href: "/proposals"
+    },
+    {
+      id: 3,
+      label: "Shop",
+      href: "/shop/supplements"
+    }
+  ].map((link) => (
+    <ListItem key={link.id}>
+      <Link {...linkStyles} href={link.href}>
+        {link.label}
+      </Link>
+    </ListItem>
+  ));
   return (
     <Box position="fixed" top={0} left={0} right={0} zIndex={1000} px={{ base: 2, md: 3 }} py={2}>
       <Box

@@ -36,7 +36,8 @@ import { readContract, writeContract } from "@wagmi/core";
 
 import { useAppContext } from "../../context/state";
 import { config } from "src/config/wagmi";
-import { useDebounce, useLocalStorage } from "src/hooks/common";
+import { useDebounce, useInAppAuth, useLocalStorage } from "src/hooks/common";
+import { OktoContextType, useOkto, Wallet } from "okto-sdk-react";
 
 export interface MemberRegisterFormFields {
   fullName: string;
@@ -114,8 +115,9 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ isOpen, onClose }) => {
   const [amount, setAmount] = useState("0.01");
   const debouncedAmount = useDebounce<string>(amount, 500);
   const [memberInitialValues, setMemberInitialValues] = useState<MemberRegisterFormFields>();
-  const { user } = usePrivy();
+  const { user, connect } = useInAppAuth();
   const swiperRef = useRef<SwiperRef>();
+  const { getWallets, createWallet } = useOkto() as OktoContextType;
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [selectedUserType, setSelectedUserType] = useState<RegisterType>("member");
 
@@ -139,75 +141,96 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ isOpen, onClose }) => {
     smokingLength: ""
   });
   const router = useRouter();
-  async function authenticateWithGoogle(user: User) {
-    try {
-      await checkUserExist({
-        authId: user.id,
-        address: user?.wallet?.address
-      })
-        .unwrap()
-        .then(async (res) => {
-          if (res.data.isNewUser) {
-            await addUser({
-              fullName: user?.google?.name,
-              authId: user?.id,
-              email: user?.google?.email,
-              address: user?.wallet?.address!,
-              emailVerified: true
-            })
-              .unwrap()
-              .then(() => {
-                router.push("/onboarding/member");
-              });
-          } else {
-            router.push("/member/dashboard");
-          }
-        });
-    } catch (error) {}
-  }
-  async function authenticateWithWallet(user: User) {
-    try {
-      await checkUserExist({
-        authId: user?.id,
-        address: address!
-      })
-        .unwrap()
-        .then((res) => {
-          if (res.data.isNewUser) {
-            router.push("/onboarding/member");
-          } else {
-            router.push("/member/dashboard");
-          }
-        });
-    } catch (error) {}
-  }
-  const { login } = useLogin({
-    onComplete: async (user, isNewUser, wasAlreadyAuthenticated, loginMethod) => {
-      switch (loginMethod) {
-        case "google":
-          await authenticateWithGoogle(user);
-          break;
+  // async function authenticateWithGoogle(user: User) {
+  //   try {
+  //     await checkUserExist({
+  //       authId: user.id,
+  //       address: user?.wallet?.address
+  //     })
+  //       .unwrap()
+  //       .then(async (res) => {
+  //         if (res.data.isNewUser) {
+  //           await addUser({
+  //             fullName: user?.google?.name,
+  //             authId: user?.id,
+  //             email: user?.google?.email,
+  //             address: user?.wallet?.address!,
+  //             emailVerified: true
+  //           })
+  //             .unwrap()
+  //             .then(() => {
+  //               router.push("/onboarding/member");
+  //             });
+  //         } else {
+  //           router.push("/member/dashboard");
+  //         }
+  //       });
+  //   } catch (error) {}
+  // }
+  // async function authenticateWithWallet(user: User) {
+  //   try {
+  //     await checkUserExist({
+  //       authId: user?.id,
+  //       address: address!
+  //     })
+  //       .unwrap()
+  //       .then((res) => {
+  //         if (res.data.isNewUser) {
+  //           router.push("/onboarding/member");
+  //         } else {
+  //           router.push("/member/dashboard");
+  //         }
+  //       });
+  //   } catch (error) {}
+  // }
+  // const { login } = useLogin({
+  //   onComplete: async (user, isNewUser, wasAlreadyAuthenticated, loginMethod) => {
+  //     switch (loginMethod) {
+  //       case "google":
+  //         await authenticateWithGoogle(user);
+  //         break;
 
-        default:
-          await authenticateWithWallet(user);
-      }
-      // sendUserInfoToAI(memberFormData);
-      // router.push("/member/dashboard");
-    }
-  });
+  //       default:
+  //         await authenticateWithWallet(user);
+  //     }
+  //     // sendUserInfoToAI(memberFormData);
+  //     // router.push("/member/dashboard");
+  //   }
+  // });
 
   async function handleMemberFormSubmit(formData: MemberRegisterFormFields, userCid?: string) {
     try {
       setMemberFormData(formData);
       setCid(userCid as string);
-
       if (user) {
+        let userWallets: Wallet[] = [];
+        let baseWallet: string;
+        const { wallets } = await getWallets();
+        baseWallet = wallets?.find((wallet) => wallet.network_name.toLowerCase() === "base")?.address as string;
+        if (!wallets?.length) {
+          const { wallets } = await createWallet();
+          userWallets = wallets;
+          baseWallet = userWallets?.find((wallet) => wallet.network_name.toLowerCase() === "base")?.address as string;
+          await updateUser({
+            addressOrAuthId: user?.username as string,
+            userCid,
+            address: baseWallet,
+            fullName: formData.fullName,
+            email: formData.email
+          }).unwrap();
+          router.push("/member/dashboard");
+          return;
+        }
         await updateUser({
-          addressOrAuthId: user?.id,
-          ...formData
+          addressOrAuthId: user?.username as string,
+          userCid,
+          address: baseWallet,
+          fullName: formData.fullName,
+          email: formData.email
         }).unwrap();
+        router.push("/member/dashboard");
       } else {
-        login();
+        connect();
       }
     } catch (error) {
       console.log({ error });
