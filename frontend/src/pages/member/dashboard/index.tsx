@@ -9,7 +9,7 @@ import { useAppContext } from "src/context/state";
 
 export default function MemberDashboardPage() {
   const { currentUser: userData, isFetchingUser } = useAppContext();
-
+  console.log({ userData, isFetchingUser });
   const storage = useStorage();
   const [registerData, setRegisterData] = useState<MemberRegisterFormFields | null>(null);
 

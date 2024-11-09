@@ -29,7 +29,6 @@ export const UserMenu = () => {
     setIsAdmin(currentUser?.role === "admin");
     setIsMember(currentUser?.role === "user");
   }, [currentUser]);
-  console.log({ user });
 
   return (
     <>
@@ -82,11 +81,11 @@ export const UserMenu = () => {
               )}
             </MenuGroup>
             <MenuDivider />
+            <LogoutButton as="menuitem" />
           </MenuList>
           {/* </Portal> */}
         </Menu>
       )}
-      <LogoutButton as={"button"} />
     </>
   );
 };

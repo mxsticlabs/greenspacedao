@@ -3,20 +3,32 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import isEmpty from "just-is-empty";
 import { useRouter } from "next/router";
+import { OktoContextType, useOkto } from "okto-sdk-react";
 import { ReactNode, useCallback, useEffect } from "react";
 import theme from "src/config/theme";
 import { useAppContext } from "src/context/state";
 import { useInAppAuth } from "src/hooks/common";
 import { useLazyGetUserQuery } from "src/state/services";
 import { useAccount } from "wagmi";
+import { useNextAuthSession } from "./okto-next-auth";
 
 export function AppChakraProvider({ children }: { children: ReactNode }) {
   const { address: connectedAddress } = useAccount();
   const { user } = useInAppAuth();
   const router = useRouter();
-  const [getUser, { isLoading }] = useLazyGetUserQuery();
-
-  const { setAddress, setIsAuthenticated, setCurrentUser, setIsFetchingUser, address } = useAppContext();
+  const [getUser, { isFetching }] = useLazyGetUserQuery();
+  const { data: session, status } = useNextAuthSession();
+  const { setAddress, setIsAuthenticated, setCurrentUser, currentUser, setIsFetchingUser, address } = useAppContext();
+  console.log({ session });
+  const {
+    isLoggedIn,
+    authenticate,
+    createWallet
+    // getPortfolio,
+    // getSupportedTokens,
+    // getWallets,
+    // getUserDetails,
+  } = useOkto() as OktoContextType;
   const { mutate } = useMutation({
     mutationFn: async function (address: string) {
       const { data } = await axios.post<{ data: { isNewUser: boolean } }>("/api/users/is-new", {
@@ -34,10 +46,37 @@ export function AppChakraProvider({ children }: { children: ReactNode }) {
     }
   });
 
+  const handleAuthenticate = useCallback(
+    async (idToken: string): Promise<any> => {
+      if (status !== "loading" && isEmpty(idToken)) {
+        return { result: false, error: "No google login" };
+      }
+
+      return new Promise((resolve) => {
+        authenticate(idToken as string, (result: any, error: any) => {
+          if (result) {
+            resolve({ result: true });
+          } else if (error) {
+            resolve({ result: false, error });
+          }
+        });
+      });
+    },
+    [status, authenticate]
+  );
+
   useEffect(() => {
-    setIsFetchingUser(isLoading);
-  }, [isLoading, setIsFetchingUser]);
+    handleAuthenticate(session?.id_token as string).then(async (res) => {
+      console.log({ res });
+
+      await createWallet();
+    });
+  }, [createWallet, handleAuthenticate, session?.id_token]);
   useEffect(() => {
+    setIsFetchingUser(isFetching);
+  }, [isFetching, setIsFetchingUser]);
+  useEffect(() => {
+    if (currentUser) return;
     if (connectedAddress) {
       setAddress(connectedAddress);
       mutate(connectedAddress);
@@ -47,12 +86,11 @@ export function AppChakraProvider({ children }: { children: ReactNode }) {
     const isAuth = !isEmpty(connectedAddress);
     setIsAuthenticated(isAuth);
   }, [connectedAddress, mutate, setAddress, setIsAuthenticated]);
-  useEffect(() => {}, []);
-  const getUserCb = useCallback(getUser, [user, getUser]);
+
+  const getUserCb = useCallback(getUser, [user, getUser, address]);
   useEffect(() => {
     const fetchUser = async () => {
-      if (!user || !address) return;
-
+      if (!user && !address) return;
       await getUserCb({ usernameOrAuthId: address || user?.authId || "" }, true)
         .unwrap()
         .then((response) => {

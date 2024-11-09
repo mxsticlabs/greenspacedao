@@ -1,20 +1,23 @@
 import { Button, MenuItem } from "@chakra-ui/react";
-import { useLogout } from "@privy-io/react-auth";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { FiLogOut } from "react-icons/fi";
 import { useDisconnect } from "wagmi";
 import { signOut } from "next-auth/react";
+import { useAppContext } from "src/context/state";
 
 export const LogoutButton = ({ as = "menuitem" }: { as: "menuitem" | "button" }) => {
+  const { currentUser, setCurrentUser } = useAppContext();
   const [isLoading, setIsLoading] = useState(false);
   const { disconnectAsync } = useDisconnect();
   const router = useRouter();
   async function handleLogout() {
     setIsLoading(true);
-    await signOut();
+    setCurrentUser(null);
     await disconnectAsync();
-    router.push("/");
+    await signOut();
+    router.replace("/");
+    router.reload();
     setIsLoading(false);
   }
   return (

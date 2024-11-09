@@ -28,6 +28,7 @@ import { RegisterButton } from "../Auth/RegisterButton";
 import { usePrivy } from "@privy-io/react-auth";
 import { CustomConnectButton } from "../Auth/ConnectButton";
 import { useAppContext } from "src/context/state";
+import { LogoutButton } from "../Auth/Logout";
 
 export function HeaderNav() {
   const { isMobileSize, isTabletSize } = useResize();
@@ -126,7 +127,6 @@ export function HeaderNav() {
           </List>
 
           <HStack px={4} py={2} h={"full"} justify={"flex-end"}>
-            {!isAuthenticated && <CustomConnectButton />}
             {!(isMobileSize || isTabletSize) && (
               <>
                 <ConnectOrLogout openModal={onOpen} />
