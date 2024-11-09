@@ -1,4 +1,4 @@
-import { USER_ACCOUNT_TYPE } from ".";
+import { USER_ACCOUNT_TYPE, UserSelect } from ".";
 
 export interface IAddressToken {
   Link: string;
@@ -11,7 +11,7 @@ export interface IAddressData {
   address: string;
 }
 
-export type stateContextType = {
+export type APP_CONTEXT_STATE = {
   accountType: USER_ACCOUNT_TYPE;
   setAccountType: (data: USER_ACCOUNT_TYPE) => void;
   isAuthenticated: boolean;
@@ -20,12 +20,16 @@ export type stateContextType = {
   allTokensData: any;
   loading: boolean;
   isUserConnected: boolean;
+  isFetchingUser: boolean;
+  setIsFetchingUser: (data: boolean) => void;
   setAllTokenData: (data: any) => void;
   setAddress: (data: string) => void;
   setLoading: (data: boolean) => void;
   setIsUserConnected: (data: boolean) => void;
-  user: User;
-  setUser: (data: any) => void;
+
+  currentUser: UserSelect | null;
+  setCurrentUser: (data: UserSelect | null) => void;
+
   ensName: any;
   setEnsName: (data: any) => void;
   ensAvatar: any;

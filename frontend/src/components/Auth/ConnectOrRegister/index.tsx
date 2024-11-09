@@ -9,7 +9,7 @@ export const ConnectOrLogout = ({ openModal }: { openModal: () => void }) => {
   return (
     <>
       {!user && <LoginAndRegisterButtons openModal={openModal} />}
-      {ready && <UserMenu />}
+      {ready && user && <UserMenu />}
     </>
   );
 };

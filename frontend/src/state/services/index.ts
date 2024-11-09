@@ -7,9 +7,7 @@ import {
   NEW_MEETING,
   NEW_MEETING_RECORD,
   NEW_NUTRITIONIST,
-  NEW_USER,
   Nutritionist,
-  USER,
   VerificationStatus
 } from "../types";
 import {
@@ -23,6 +21,7 @@ import {
   NEW_COMMUNITY
 } from "src/types/shared";
 import { update } from "../slices";
+import { UserInsert, UserSelect } from "src/types";
 
 export const GreenSpaceDAOApi = createApi({
   reducerPath: "GreenSpaceDAOApi",
@@ -172,8 +171,8 @@ export const GreenSpaceDAOApi = createApi({
       invalidatesTags: (result, error, { slug }) => [{ type: "Articles", id: slug }]
     }),
     updateUser: builder.mutation<
-      APIResponse<Partial<USER>>,
-      Partial<USER> & {
+      APIResponse<Partial<UserSelect>>,
+      Partial<UserInsert> & {
         addressOrAuthId: string;
       }
     >({
@@ -213,7 +212,10 @@ export const GreenSpaceDAOApi = createApi({
       invalidatesTags: (result, error, { slug }) => [{ type: "MealPlans", id: slug }]
     }),
 
-    getUser: builder.query<Partial<APIResponse<USER>>, { usernameOrAuthId: string; params?: Record<string, any> }>({
+    getUser: builder.query<
+      Partial<APIResponse<UserSelect>>,
+      { usernameOrAuthId: string; params?: Record<string, any> }
+    >({
       query: ({ usernameOrAuthId, params }) => {
         return {
           url: `users/${encodeURIComponent(usernameOrAuthId)}?${objectToSearchParams(params!)}`
@@ -454,7 +456,7 @@ export const GreenSpaceDAOApi = createApi({
           : // an error occurred, but we still want to refetch this query when `{ type: 'Appointments', id: 'LIST' }` is invalidated
             [{ type: "Appointments", id: "LIST" }]
     }),
-    getUsers: builder.query<Partial<APIResponse<USER[]>>, void>({
+    getUsers: builder.query<Partial<APIResponse<UserSelect[]>>, void>({
       query: () => {
         return {
           url: `users`
@@ -550,7 +552,7 @@ export const GreenSpaceDAOApi = createApi({
       }),
       invalidatesTags: [{ type: "Tokens" as const, id: "LIST" }]
     }),
-    addUser: builder.mutation<APIResponse<USER>, NEW_USER>({
+    addUser: builder.mutation<APIResponse<UserSelect>, UserInsert>({
       query: (data) => ({
         url: `users`,
         method: "POST",

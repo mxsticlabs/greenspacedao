@@ -3,7 +3,7 @@ import { Box, Heading, Text, useColorModeValue, VStack, Container } from "@chakr
 import Head from "next/head";
 import MemberRegisterForm from "src/components/MemberRegisterForm";
 import { MemberRegisterFormFields } from "src/components/RegisterForm";
-import { useDebounce, useLocalStorage } from "src/hooks/common";
+import { useDebounce, useInAppAuth, useLocalStorage } from "src/hooks/common";
 import { useWallet } from "src/context/WalletProvider";
 import { useAddUserMutation, useLazyGetUserQuery, useUpdateUserMutation } from "src/state/services";
 import { useRouter } from "next/router";
@@ -19,13 +19,13 @@ import { USER } from "src/types";
 export default function OnboardMemberPage() {
   const [addUser, { isLoading: addUserLoading }] = useAddUserMutation();
 
-  const { user: privyUser } = usePrivy();
+  const { user } = useInAppAuth();
   const { login } = useLogin();
-  const [user, setUser] = useState<USER | undefined>(undefined);
+  // const [user, setUser] = useState<USER | undefined>(undefined);
   const router = useRouter();
   const [amount, setAmount] = useState("0.01");
   const debouncedAmount = useDebounce<string>(amount, 500);
-  const { address } = useWallet();
+  const { address } = useAppContext();
 
   const { allTokensData } = useAppContext();
   const [updateUser] = useUpdateUserMutation();
@@ -77,9 +77,9 @@ export default function OnboardMemberPage() {
 
   useEffect(() => {
     async function getUserData() {
-      if (privyUser) {
+      if (user) {
         const response = await getUser({
-          usernameOrAuthId: privyUser?.id
+          usernameOrAuthId: user?.authId
         }).unwrap();
         setUser(response.data);
         setFormData((prev) => ({

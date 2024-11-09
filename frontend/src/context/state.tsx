@@ -1,19 +1,23 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useNextAuthSession } from "src/providers/okto-next-auth";
-import { USER_ACCOUNT_TYPE } from "src/types";
-import { User, stateContextType } from "src/types/state";
+import { USER_ACCOUNT_TYPE, UserSelect } from "src/types";
+import { User, APP_CONTEXT_STATE } from "src/types/state";
 
-const contextDefaultValue: stateContextType = {
+const contextDefaultValue: APP_CONTEXT_STATE = {
   allTokensData: {},
   address: "",
+  currentUser: null,
+  setCurrentUser: () => {},
   setAllTokenData: () => null,
-  setAddress: () => null,
+  setAddress: () => {},
   loading: false,
   setLoading: () => null,
   isUserConnected: false,
+  setIsFetchingUser: () => {},
+  isFetchingUser: true,
   setIsUserConnected: () => null,
-  user: {} as User,
-  setUser: () => null,
+  // user: {} as User,
+  // setUser: () => null,
   isAuthenticated: false,
   setIsAuthenticated: () => {},
   accountType: null,
@@ -28,10 +32,19 @@ type StateContextProviderProps = {
   children: React.ReactNode;
 };
 
-const AppContext = createContext<stateContextType>(contextDefaultValue);
+const AppContext = createContext<APP_CONTEXT_STATE>(contextDefaultValue);
 
 export function AppContextProvider({ children }: StateContextProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isFetchingUser, setIsFetchingUser] = useState<boolean>(true);
+  const [currentUser, setCurrentUser] = useState<UserSelect | null>(null);
+  const setCurrentUserCb = useCallback((data: UserSelect | null) => {
+    setCurrentUser(data);
+  }, []);
+  const setIsFetchingUserCb = useCallback((data: boolean) => {
+    setIsFetchingUser(data);
+  }, []);
+
   const [allTokensData, setAllTokenData] = useState<any>({
     userNftUri: "https://bafybeicxroigojtsvluxivtdkgmhcjijhnlvco2prg57ws6k3hqetkvhzu.ipfs.dweb.link/user%20badge.png",
     nutritionistNftUri:
@@ -45,14 +58,14 @@ export function AppContextProvider({ children }: StateContextProviderProps) {
   const [ensName, setEnsName] = useState<any>();
   const [ensAvatar, setEnsAvatar] = useState<any>();
   const { status } = useNextAuthSession();
-  const [user, setUser] = useState<User>({
-    userAddress: "",
-    name: "",
-    userCidData: "",
-    startDate: "",
-    endDate: "",
-    amount: ""
-  });
+  // const [user, setUser] = useState<User>({
+  //   userAddress: "",
+  //   name: "",
+  //   userCidData: "",
+  //   startDate: "",
+  //   endDate: "",
+  //   amount: ""
+  // });
 
   const sharedState = {
     allTokensData,
@@ -63,13 +76,16 @@ export function AppContextProvider({ children }: StateContextProviderProps) {
     setLoading,
     isUserConnected,
     setIsUserConnected,
-    user,
+    // user,
     isAuthenticated,
     setIsAuthenticated,
     accountType,
     setAccountType,
-    setUser,
-
+    // setUser,
+    currentUser,
+    setCurrentUser: setCurrentUserCb,
+    isFetchingUser,
+    setIsFetchingUser: setIsFetchingUserCb,
     ensName,
     setEnsName,
     ensAvatar,

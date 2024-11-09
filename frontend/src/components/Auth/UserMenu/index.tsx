@@ -20,52 +20,39 @@ import { useCallback, useEffect, useState } from "react";
 // import { USER } from "src/state/types";
 import { useInAppAuth } from "src/hooks/common";
 import { User } from "next-auth";
+import { useAppContext } from "src/context/state";
 
 export const UserMenu = () => {
   const { user, ready } = useInAppAuth();
-  const [getUser, { isLoading }] = useLazyGetUserQuery();
+  const { currentUser, isFetchingUser } = useAppContext();
   const getFirstName = (name: string) => name?.split?.(" ")[0];
-  const [savedUser, setSavedUser] = useState<User | undefined>();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMember, setIsMember] = useState(false);
   const [isNutritionist, setIsNutritionist] = useState(false);
 
   const getUserCb = useCallback(getUser, [user, getUser]);
   useEffect(() => {
-    const fetchUser = async () => {
-      if (ready && !user) return;
-
-      await getUserCb({ usernameOrAuthId: user?.id + "" }, true)
-        .unwrap()
-        .then((response) => {
-          const savedUser = response.data!;
-
-          setSavedUser(savedUser);
-          setIsAdmin(savedUser?.role === "admin");
-          setIsMember(savedUser?.userType === "member");
-          setIsNutritionist(savedUser?.userType === "nutritionist");
-        });
-    };
-    fetchUser();
-  }, [user, getUserCb, ready]);
+    setIsAdmin(currentUser?.role === "admin");
+    setIsMember(currentUser?.role === "user");
+  }, [currentUser]);
   console.log({ user });
 
   return (
     <>
-      {isLoading && (
+      {isFetchingUser && (
         <Button
           rounded={"full"}
           variant={"outline"}
           colorScheme="gs-gray"
           size={"sm"}
-          isLoading={isLoading}
+          isLoading={isFetchingUser}
           loadingText="Loading..."
         >
           Hi, <BoringAvatar size={30} />
         </Button>
       )}
 
-      {!isLoading && savedUser && (
+      {!isFetchingUser && currentUser && (
         <Menu>
           <MenuButton
             as={Button}

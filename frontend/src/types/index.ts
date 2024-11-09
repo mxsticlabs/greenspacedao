@@ -1,4 +1,6 @@
+import { InferSelectModel } from "drizzle-orm";
 import { Session } from "next-auth";
+import { users } from "src/db/schema";
 
 export type APIResponse<T> = {
   data: T | null;
@@ -76,3 +78,5 @@ export interface NextAuthSession extends Session {
 }
 
 export type USER_ACCOUNT_TYPE = "WALLET" | "GOOGLE" | null;
+export type UserSelect = InferSelectModel<typeof users>;
+export type UserInsert = InferInsertModel<typeof users>;
