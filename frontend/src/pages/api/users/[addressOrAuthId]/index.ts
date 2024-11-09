@@ -55,7 +55,8 @@ export const PUT: HTTP_METHOD_CB = async (req: NextApiRequest, res: NextApiRespo
     let { addressOrAuthId } = req.query;
     const whereCondition = or(
       eq(users.address, addressOrAuthId as string),
-      eq(users.authId, addressOrAuthId as string)
+      eq(users.authId, addressOrAuthId as string),
+      eq(users.username, addressOrAuthId as string)
     );
     const user = await db.query.users.findFirst({
       where: whereCondition

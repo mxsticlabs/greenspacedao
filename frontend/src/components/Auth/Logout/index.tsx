@@ -5,9 +5,11 @@ import { FiLogOut } from "react-icons/fi";
 import { useDisconnect } from "wagmi";
 import { signOut } from "next-auth/react";
 import { useAppContext } from "src/context/state";
+import { useInAppAuth } from "src/hooks/common";
 
 export const LogoutButton = ({ as = "menuitem" }: { as: "menuitem" | "button" }) => {
   const { currentUser, setCurrentUser } = useAppContext();
+  const { user } = useInAppAuth();
   const [isLoading, setIsLoading] = useState(false);
   const { disconnectAsync } = useDisconnect();
   const router = useRouter();
@@ -15,9 +17,12 @@ export const LogoutButton = ({ as = "menuitem" }: { as: "menuitem" | "button" })
     setIsLoading(true);
     setCurrentUser(null);
     await disconnectAsync();
-    await signOut();
     router.replace("/");
-    router.reload();
+    user &&
+      (await signOut().then(() => {
+        router.replace("/");
+      }));
+
     setIsLoading(false);
   }
   return (

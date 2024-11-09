@@ -7,6 +7,7 @@ import { useAddUserMutation, useLazyGetUserQuery, useUpdateUserMutation } from "
 import { useRouter } from "next/router";
 import { useAppContext } from "src/context/state";
 import { useEffect, useState } from "react";
+import { OktoContextType, useOkto, type Wallet } from "okto-sdk-react";
 
 export default function OnboardMemberPage() {
   const [addUser, { isLoading: addUserLoading }] = useAddUserMutation();
@@ -18,7 +19,7 @@ export default function OnboardMemberPage() {
   const [amount, setAmount] = useState("0.01");
   const debouncedAmount = useDebounce<string>(amount, 500);
   const { address, currentUser } = useAppContext();
-
+  const { getWallets, createWallet } = useOkto() as OktoContextType;
   const [updateUser] = useUpdateUserMutation();
   const [getUser] = useLazyGetUserQuery();
   const [cid, setCid] = useState<string>("");
@@ -49,7 +50,7 @@ export default function OnboardMemberPage() {
     try {
       setFormData(formData);
       setCid(userCid as string);
-      if (!currentUser && address) {
+      if (!user && address) {
         await addUser({
           address: address,
           userCid,
@@ -57,10 +58,29 @@ export default function OnboardMemberPage() {
           email: formData.email
         }).unwrap();
         router.push("/member/dashboard");
-      } else if (currentUser) {
+      } else if (user) {
+        let userWallets: Wallet[] = [];
+        let baseWallet: string;
+        const { wallets } = await getWallets();
+        baseWallet = wallets?.find((wallet) => wallet.network_name.toLowerCase() === "base")?.address as string;
+        if (!wallets?.length) {
+          const { wallets } = await createWallet();
+          userWallets = wallets;
+          baseWallet = userWallets?.find((wallet) => wallet.network_name.toLowerCase() === "base")?.address as string;
+          await updateUser({
+            addressOrAuthId: user?.username as string,
+            userCid,
+            address: baseWallet,
+            fullName: formData.fullName,
+            email: formData.email
+          }).unwrap();
+          router.push("/member/dashboard");
+          return;
+        }
         await updateUser({
-          addressOrAuthId: currentUser?.authId as string,
+          addressOrAuthId: user?.username as string,
           userCid,
+          address: baseWallet,
           fullName: formData.fullName,
           email: formData.email
         }).unwrap();

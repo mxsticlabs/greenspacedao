@@ -44,7 +44,9 @@ export function AppContextProvider({ children }: StateContextProviderProps) {
   const setIsFetchingUserCb = useCallback((data: boolean) => {
     setIsFetchingUser(data);
   }, []);
-
+  const setAddressCb = useCallback((data: string) => {
+    setAddress(data);
+  }, []);
   const [allTokensData, setAllTokenData] = useState<any>({
     userNftUri: "https://bafybeicxroigojtsvluxivtdkgmhcjijhnlvco2prg57ws6k3hqetkvhzu.ipfs.dweb.link/user%20badge.png",
     nutritionistNftUri:
@@ -71,7 +73,7 @@ export function AppContextProvider({ children }: StateContextProviderProps) {
     allTokensData,
     setAllTokenData,
     address,
-    setAddress,
+    setAddress: setAddressCb,
     loading,
     setLoading,
     isUserConnected,
