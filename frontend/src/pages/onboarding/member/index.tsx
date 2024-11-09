@@ -1,33 +1,24 @@
-import NutritionistForm from "src/components/NutritionistForm";
 import { Box, Heading, Text, useColorModeValue, VStack, Container } from "@chakra-ui/react";
 import Head from "next/head";
 import MemberRegisterForm from "src/components/MemberRegisterForm";
 import { MemberRegisterFormFields } from "src/components/RegisterForm";
-import { useDebounce, useInAppAuth, useLocalStorage } from "src/hooks/common";
-import { useWallet } from "src/context/WalletProvider";
+import { useDebounce, useInAppAuth } from "src/hooks/common";
 import { useAddUserMutation, useLazyGetUserQuery, useUpdateUserMutation } from "src/state/services";
 import { useRouter } from "next/router";
-import { communityAbi } from "../../../../abis";
-import { config } from "src/config/wagmi";
-import { communityAddr } from "src/utils/constants";
 import { useAppContext } from "src/context/state";
-import { writeContract } from "@wagmi/core";
 import { useEffect, useState } from "react";
-import { useLogin, usePrivy } from "@privy-io/react-auth";
-import { USER } from "src/types";
 
 export default function OnboardMemberPage() {
   const [addUser, { isLoading: addUserLoading }] = useAddUserMutation();
 
-  const { user } = useInAppAuth();
-  const { login } = useLogin();
+  const { user, connect } = useInAppAuth();
+
   // const [user, setUser] = useState<USER | undefined>(undefined);
   const router = useRouter();
   const [amount, setAmount] = useState("0.01");
   const debouncedAmount = useDebounce<string>(amount, 500);
-  const { address } = useAppContext();
+  const { address, currentUser } = useAppContext();
 
-  const { allTokensData } = useAppContext();
   const [updateUser] = useUpdateUserMutation();
   const [getUser] = useLazyGetUserQuery();
   const [cid, setCid] = useState<string>("");
@@ -58,17 +49,24 @@ export default function OnboardMemberPage() {
     try {
       setFormData(formData);
       setCid(userCid as string);
-
-      if (privyUser) {
+      if (!currentUser && address) {
+        await addUser({
+          address: address,
+          userCid,
+          fullName: formData.fullName,
+          email: formData.email
+        }).unwrap();
+        router.push("/member/dashboard");
+      } else if (currentUser) {
         await updateUser({
-          addressOrAuthId: privyUser?.id,
+          addressOrAuthId: currentUser?.authId as string,
           userCid,
           fullName: formData.fullName,
           email: formData.email
         }).unwrap();
         router.push("/member/dashboard");
       } else {
-        login();
+        connect();
       }
     } catch (error) {
       console.log({ error });
@@ -76,22 +74,14 @@ export default function OnboardMemberPage() {
   }
 
   useEffect(() => {
-    async function getUserData() {
-      if (user) {
-        const response = await getUser({
-          usernameOrAuthId: user?.authId
-        }).unwrap();
-        setUser(response.data);
-        setFormData((prev) => ({
-          ...prev,
-          fullName: response.data?.fullName,
-          email: response.data?.email
-        }));
-      }
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: user?.fullName as string,
+        email: user?.email as string
+      }));
     }
-    getUserData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [privyUser]);
+  }, [currentUser, user]);
 
   return (
     <>

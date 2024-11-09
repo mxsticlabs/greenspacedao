@@ -1,18 +1,16 @@
-import { PrivyProvider } from "@privy-io/react-auth";
 import "src/styles/globals.css";
+import "swiper/css";
 import "src/styles/tiptap.css";
+import { PrivyProvider } from "@privy-io/react-auth";
 import type { AppProps } from "next/app";
-import { ChakraProvider, useColorMode } from "@chakra-ui/react";
+import { useColorMode } from "@chakra-ui/react";
 import { fonts } from "src/lib/fonts";
-import theme from "src/config/theme";
 import { WagmiProvider } from "wagmi";
-// import WalletProvider from "src/context/WalletProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { config } from "src/config/wagmi";
 import store from "src/state/store";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
-import "swiper/css";
 import { Provider as ReduxProvider } from "react-redux";
 import { HuddleClient } from "@huddle01/web-core";
 import { HuddleProvider } from "@huddle01/react";
@@ -57,21 +55,18 @@ export default function App({
                 }
               }}
             >
-              <ReduxProvider store={store}>
-                <QueryClientProvider client={queryClient}>
-                  <ThirdwebProvider clientId="7d6dd3b28e4d16bb007c78b1f6c90b04" activeChain="sepolia">
+              <ThirdwebProvider clientId="7d6dd3b28e4d16bb007c78b1f6c90b04" activeChain="sepolia">
+                <ReduxProvider store={store}>
+                  <QueryClientProvider client={queryClient}>
                     <HuddleProvider client={huddleClient}>
                       <AppChakraProvider>
-                        {/* <WalletProvider> */}
-
                         <ColorModeToggle />
                         <Component {...pageProps} />
-                        {/* </WalletProvider> */}
                       </AppChakraProvider>
                     </HuddleProvider>
-                  </ThirdwebProvider>
-                </QueryClientProvider>
-              </ReduxProvider>
+                  </QueryClientProvider>
+                </ReduxProvider>
+              </ThirdwebProvider>
             </PrivyProvider>
           </WagmiProvider>
         </AppContextProvider>

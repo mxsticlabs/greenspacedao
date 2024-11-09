@@ -14,13 +14,21 @@ export const LogoutButton = ({ as = "menuitem" }: { as: "menuitem" | "button" })
     setIsLoading(true);
     await signOut();
     await disconnectAsync();
-    setIsLoading(false);
     router.push("/");
+    setIsLoading(false);
   }
   return (
     <>
       {as === "button" && (
-        <Button isLoading={isLoading} rounded={"full"} flex={1} colorScheme="red" gap={3} onClick={handleLogout}>
+        <Button
+          isLoading={isLoading}
+          rounded={"full"}
+          maxW={200}
+          flex={1}
+          colorScheme="red"
+          gap={3}
+          onClick={handleLogout}
+        >
           <FiLogOut /> Logout
         </Button>
       )}

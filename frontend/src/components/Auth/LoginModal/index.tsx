@@ -33,7 +33,7 @@ export const LoginModal = ({ isOpen, onClose }: Props) => {
                 size: "lg",
                 rounded: "full",
 
-                colorScheme: "gs-yellow"
+                colorScheme: "blue"
               }}
             />
             <LoginButton

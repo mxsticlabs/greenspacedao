@@ -1,36 +1,24 @@
 import DashboardEmptyArea from "src/components/DashboardEmptyArea";
 
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Heading,
-  Image,
-  Stack,
-  Table,
-  TableContainer,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, HStack, Heading, Image, Stack, Table, TableContainer } from "@chakra-ui/react";
 import DashBoardLayout from "src/components/MemberDashboardLayout";
 import { Link } from "@chakra-ui/next-js";
 import { useGetCommunitiesQuery } from "src/state/services";
 import { usePrivy } from "@privy-io/react-auth";
 import isEmpty from "just-is-empty";
 import TableItems from "src/components/TableItems";
+import { useAppContext } from "src/context/state";
 
 export default function DashBoard() {
-  const { user } = usePrivy();
+  const { currentUser } = useAppContext();
   const { data: communitiesResponse, isLoading } = useGetCommunitiesQuery({
-    userId: user?.id,
+    userId: currentUser?.authId as string
   });
   const communities = communitiesResponse?.data;
   return (
     <DashBoardLayout>
       <Flex direction={"column"} w={"full"} py={5} px={4}>
-        <Heading
-          mb={2}
-          borderBottom={"1px solid var(--chakra-colors-gray-600)"}
-        >
+        <Heading mb={2} borderBottom={"1px solid var(--chakra-colors-gray-600)"}>
           Your communities
         </Heading>
         <DashboardEmptyArea
@@ -52,10 +40,7 @@ export default function DashBoard() {
                 <Box h={120} bg={"gray.800"} pos={"relative"}>
                   <Image
                     alt=""
-                    src={
-                      community?.coverImage ||
-                      "/assets/community-default-bg.png"
-                    }
+                    src={community?.coverImage || "/assets/community-default-bg.png"}
                     width={"full"}
                     height={"full"}
                     objectFit={"cover"}

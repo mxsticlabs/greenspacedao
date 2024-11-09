@@ -1,17 +1,15 @@
 import DashboardLayout from "src/components/MemberDashboardLayout";
 import { Box, Card, Flex, Heading, Text, useColorModeValue } from "@chakra-ui/react";
 
-import { usePrivy } from "@privy-io/react-auth";
 import { useStorage } from "@thirdweb-dev/react";
 import { useCallback, useEffect, useState } from "react";
-import { useGetUserQuery } from "src/state/services";
 import { MemberRegisterFormFields } from "src/components/RegisterForm";
 import DashboardEmptyArea from "src/components/DashboardEmptyArea";
+import { useAppContext } from "src/context/state";
 
 export default function MemberDashboardPage() {
-  const { user } = usePrivy();
-  const { data: userDataResponse, isLoading, isFetching } = useGetUserQuery({ usernameOrAuthId: user?.id! });
-  const userData = userDataResponse?.data;
+  const { currentUser: userData, isFetchingUser } = useAppContext();
+
   const storage = useStorage();
   const [registerData, setRegisterData] = useState<MemberRegisterFormFields | null>(null);
 
@@ -35,9 +33,9 @@ export default function MemberDashboardPage() {
   return (
     <DashboardLayout>
       <Box className="min-h-full h-full" px={"4"} py={4}>
-        <DashboardEmptyArea isLoading={isLoading || isFetching} isEmpty={!isLoading && !registerData}>
+        <DashboardEmptyArea isLoading={isFetchingUser} isEmpty={!isFetchingUser && !registerData}>
           <Flex direction={"column"} w={"full"} py={5} px={4} bg={bgColor} rounded={"xl"} shadow="md">
-            {!isLoading && registerData && (
+            {!isFetchingUser && registerData && (
               <>
                 <Heading size="lg" color={textColor} mb={6}>
                   Your Details

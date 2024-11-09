@@ -8,29 +8,23 @@ import {
   MenuGroup,
   MenuItem,
   MenuList,
-  Portal,
   Text
 } from "@chakra-ui/react";
 import { LogoutButton } from "../Logout";
 import { Link } from "@chakra-ui/next-js";
-import { usePrivy } from "@privy-io/react-auth";
-import { useGetUserQuery, useLazyGetUserQuery } from "src/state/services";
 import BoringAvatar from "boring-avatars";
-import { useCallback, useEffect, useState } from "react";
-// import { USER } from "src/state/types";
+import { useEffect, useState } from "react";
 import { useInAppAuth } from "src/hooks/common";
-import { User } from "next-auth";
 import { useAppContext } from "src/context/state";
 
 export const UserMenu = () => {
-  const { user, ready } = useInAppAuth();
+  const { user } = useInAppAuth();
   const { currentUser, isFetchingUser } = useAppContext();
   const getFirstName = (name: string) => name?.split?.(" ")[0];
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMember, setIsMember] = useState(false);
   const [isNutritionist, setIsNutritionist] = useState(false);
 
-  const getUserCb = useCallback(getUser, [user, getUser]);
   useEffect(() => {
     setIsAdmin(currentUser?.role === "admin");
     setIsMember(currentUser?.role === "user");
@@ -63,8 +57,8 @@ export const UserMenu = () => {
             gap={3}
           >
             <HStack>
-              <Text as={"span"}>Hi, {getFirstName(savedUser?.fullName!)}</Text>
-              <Avatar size={"sm"} name={savedUser?.fullName!} src={savedUser?.avatar || ""}></Avatar>{" "}
+              <Text as={"span"}>Hi, {getFirstName(currentUser?.fullName!)}</Text>
+              <Avatar size={"sm"} name={currentUser?.fullName!} src={currentUser?.avatar || ""}></Avatar>{" "}
               {/* <BsChevronDown /> */}
             </HStack>
           </MenuButton>
