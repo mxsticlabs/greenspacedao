@@ -1,13 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 
-// import { USER_SESSION } from "src/state/types";
-
 import { apiPost } from "src/utils";
-// type UpdateSession = (data?: any) => Promise<USER_SESSION | null>;
 
-import { useAccount, useConnect, useSignMessage, useDisconnect } from "wagmi";
-import { usePrivy } from "@privy-io/react-auth";
+import { useAccount, useSignMessage } from "wagmi";
 
 import TurndownService from "turndown";
 import { useNextAuthSession } from "src/providers/okto-next-auth";
@@ -127,13 +123,10 @@ export const useScrollToBottom = (triggerOnLoad = false) => {
  * @returns
  */
 export const useInAppAuth = ({ openModal }: { openModal?: () => void } = {}) => {
-  // const { ready, user, login } = usePrivy();
   const { status, data: session } = useNextAuthSession();
 
   function connect() {
-    if (!session?.user) {
-      openModal?.();
-    }
+    openModal?.();
   }
   useEffect(() => {}, [session?.user, session?.id_token, status]);
   return {

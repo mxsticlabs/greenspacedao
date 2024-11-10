@@ -10,43 +10,43 @@ import Head from "next/head";
 import PageWrapper from "src/components/PageWrapper";
 
 const MembersPage = () => {
-  const { isLoading, isFetching, data } = useGetUsersQuery({ t: "all" });
+  const { isLoading, isFetching, data } = useGetUsersQuery();
   const users = [
     {
       id: 1,
       address: "0x7e3d53767637d78ce",
       fullName: "",
       username: "",
-      avatar: "/images/user-54.jpg",
+      avatar: "/images/user-54.jpg"
     },
     {
       id: 2,
       address: "0xcadea459737d78d8d",
       fullName: "",
       username: "",
-      avatar: "",
+      avatar: ""
     },
     {
       id: 3,
       address: "0x53767637d78d8d87c8de3950",
       fullName: "",
       username: "",
-      avatar: "/images/user-53.jpg",
+      avatar: "/images/user-53.jpg"
     },
     {
       id: 4,
       address: "0x8ced38098cd390a8388c839",
       fullName: "",
       username: "",
-      avatar: "/images/user-59.jpg",
+      avatar: "/images/user-59.jpg"
     },
     {
       id: 5,
       address: "0x73cda729de74d09f4c38d4a",
       fullName: "",
       username: "",
-      avatar: "",
-    },
+      avatar: ""
+    }
   ];
   return (
     <>

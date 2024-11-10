@@ -3,7 +3,6 @@ import { Box } from "@chakra-ui/react";
 import Head from "next/head";
 import { useDebounce, useLocalStorage } from "src/hooks/common";
 import { useAddNutritionistMutation } from "src/state/services";
-import { useWallet } from "src/context/WalletProvider";
 import { Sex } from "src/state/types";
 import { useState } from "react";
 import { useAppContext } from "src/context/state";
@@ -16,7 +15,7 @@ import { useRouter } from "next/router";
 export default function OnboardNutritionistPage() {
   const { allTokensData } = useAppContext();
   const [newNutritionist] = useLocalStorage("new-nutritionist", {});
-  const { address } = useWallet();
+  const { address } = useAppContext();
   const router = useRouter();
   const [amount, setAmount] = useState("0.01");
   const debouncedAmount = useDebounce<string>(amount, 500);

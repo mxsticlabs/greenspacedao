@@ -2,7 +2,6 @@ import { Box, Button, Flex, HStack, Input, Stack, Textarea, useToast } from "@ch
 import NutritionistDashboardLayout from "src/components/NutritionistDashboardLayout";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
 
-
 import DragAndDropImage from "src/components/DragAndDropImage";
 
 import { generateSlug } from "src/utils";
@@ -14,6 +13,7 @@ import { useInAppAuth } from "src/hooks/common";
 import { useStorageUpload } from "@thirdweb-dev/react";
 import { resolveIPFSURI } from "src/helpers";
 import TextEditor from "src/components/TextEditor";
+import { useAppContext } from "src/context/state";
 
 export default function NewPostPage() {
   const [addArticle, { isLoading, status, isSuccess, isError, data }] = useAddArticleMutation();
@@ -23,10 +23,9 @@ export default function NewPostPage() {
     duration: 3000,
     position: "top",
     status: "success",
-    title: " Successful",
+    title: " Successful"
   });
-  const { user } = useInAppAuth();
-
+  const { currentUser } = useAppContext();
   const { mutateAsync: uploadToThirdWeb } = useStorageUpload();
   const [imageFile, setImageFile] = useState<string>();
 
@@ -40,7 +39,7 @@ export default function NewPostPage() {
     intro: "",
     image: "",
     status: "draft",
-    userId: user?.id!,
+    userId: currentUser?.authId!
   });
 
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
@@ -66,7 +65,7 @@ export default function NewPostPage() {
       const postToSave = {
         ...post,
         slug: generateSlug(post.title),
-        image: imageUrl,
+        image: imageUrl
       };
 
       await addArticle(postToSave).unwrap();
@@ -84,7 +83,7 @@ export default function NewPostPage() {
         ...post,
         status: "published" as PostStatus,
         slug: generateSlug(post.title),
-        image: imageUrl,
+        image: imageUrl
       };
 
       await addArticle(postToSave).unwrap();
@@ -109,7 +108,7 @@ export default function NewPostPage() {
       intro: "",
       image: "",
       status: "draft",
-      userId: user?.id!,
+      userId: currentUser?.authId!
     });
     setContentValue("");
     setImageFile(undefined);
@@ -133,9 +132,9 @@ export default function NewPostPage() {
     setPost((prev) => ({
       ...prev,
       content: contentValue,
-      userId: user?.id!,
+      userId: currentUser?.authId!
     }));
-  }, [contentValue, user?.id]);
+  }, [contentValue, currentUser?.authId]);
 
   return (
     <>
@@ -188,7 +187,6 @@ export default function NewPostPage() {
                 maxH={"200px"}
                 placeholder="A short introduction for the post..."
               ></Textarea>
-             
               <TextEditor onContentChange={(value: string) => handleEditorChange(value)} initialValue={contentValue} />
               <Box></Box>
             </Stack>

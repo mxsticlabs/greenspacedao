@@ -1,12 +1,10 @@
 import DashboardEmptyArea from "src/components/DashboardEmptyArea";
 
-import { Box, Button, Flex, HStack, Heading, Image, Stack, Table, TableContainer } from "@chakra-ui/react";
+import { Box, Button, Flex, HStack, Heading, Image, Stack } from "@chakra-ui/react";
 import DashBoardLayout from "src/components/MemberDashboardLayout";
 import { Link } from "@chakra-ui/next-js";
 import { useGetCommunitiesQuery } from "src/state/services";
-import { usePrivy } from "@privy-io/react-auth";
 import isEmpty from "just-is-empty";
-import TableItems from "src/components/TableItems";
 import { useAppContext } from "src/context/state";
 
 export default function DashBoard() {

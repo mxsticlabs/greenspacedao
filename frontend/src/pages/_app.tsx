@@ -1,7 +1,6 @@
 import "src/styles/globals.css";
 import "swiper/css";
 import "src/styles/tiptap.css";
-import { PrivyProvider } from "@privy-io/react-auth";
 import type { AppProps } from "next/app";
 import { useColorMode } from "@chakra-ui/react";
 import { fonts } from "src/lib/fonts";
@@ -47,14 +46,7 @@ export default function App({
       <OktoNextAuthProvider session={session}>
         <AppContextProvider>
           <WagmiProvider config={config}>
-            <PrivyProvider
-              appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID!}
-              config={{
-                appearance: {
-                  theme: "light"
-                }
-              }}
-            >
+          
               <ThirdwebProvider clientId="7d6dd3b28e4d16bb007c78b1f6c90b04" activeChain="sepolia">
                 <ReduxProvider store={store}>
                   <QueryClientProvider client={queryClient}>
@@ -67,7 +59,7 @@ export default function App({
                   </QueryClientProvider>
                 </ReduxProvider>
               </ThirdwebProvider>
-            </PrivyProvider>
+         
           </WagmiProvider>
         </AppContextProvider>
       </OktoNextAuthProvider>

@@ -24,20 +24,14 @@ import {
   useUpdateUserMutation
 } from "src/state/services";
 import MemberRegisterForm from "../MemberRegisterForm";
-import { useLogin, usePrivy, User } from "@privy-io/react-auth";
 import { Sex } from "src/state/types";
 import { useRouter } from "next/router";
-import { useWallet } from "src/context/WalletProvider";
 import { BsChevronLeft } from "react-icons/bs";
-import { communityAddr } from "src/utils/constants";
-import { communityAbi } from "../../../abis";
-import { parseEther, parseGwei } from "viem";
-import { readContract, writeContract } from "@wagmi/core";
 
 import { useAppContext } from "../../context/state";
-import { config } from "src/config/wagmi";
-import { useDebounce, useInAppAuth, useLocalStorage } from "src/hooks/common";
+import { useDebounce, useInAppAuth } from "src/hooks/common";
 import { OktoContextType, useOkto, Wallet } from "okto-sdk-react";
+import { useAccount } from "wagmi";
 
 export interface MemberRegisterFormFields {
   fullName: string;
@@ -111,7 +105,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ isOpen, onClose }) => {
   const [updateUser] = useUpdateUserMutation();
   const [checkUserExist] = useCheckUserExistMutation();
   const [sendUserInfoToAI] = useSendUserInfoToAIMutation();
-  const { address } = useWallet();
+  const { address } = useAccount();
   const [amount, setAmount] = useState("0.01");
   const debouncedAmount = useDebounce<string>(amount, 500);
   const [memberInitialValues, setMemberInitialValues] = useState<MemberRegisterFormFields>();

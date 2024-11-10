@@ -22,14 +22,14 @@ import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "src/state/store";
 import { addMessage } from "src/state/slices";
 import CommunityChatInput from "./ChatInput";
-import { usePrivy } from "@privy-io/react-auth";
 import { formatChatTimestamp } from "src/helpers";
 import { NotAMemberMiddlewareComp } from "../../NotAMemberMiddleware";
 import { TabHeading } from "../../TabHeading";
 import { useScrollToBottom } from "src/hooks/common";
+import { useAppContext } from "src/context/state";
 
 export default function Chats({ spaceIdOrId }: { spaceIdOrId: string }) {
-  const { user } = usePrivy();
+  const { currentUser } = useAppContext();
   const { containerRef } = useScrollToBottom(true);
   const { data: messagesRes, isFetching, isLoading } = useGetCommunityMessagesQuery({ spaceIdOrId });
 
@@ -109,7 +109,7 @@ export default function Chats({ spaceIdOrId }: { spaceIdOrId: string }) {
           }}
           title="Join this community to send a message"
         >
-          <CommunityChatInput user={user} spaceIdOrId={spaceIdOrId} />
+          <CommunityChatInput user={currentUser} spaceIdOrId={spaceIdOrId} />
         </NotAMemberMiddlewareComp>
       </Box>
     </Flex>

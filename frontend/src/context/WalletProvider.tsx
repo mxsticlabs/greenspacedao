@@ -1,5 +1,5 @@
-import { usePrivy, useWallets } from "@privy-io/react-auth";
-import React, { FC, ReactNode, createContext, useContext, useEffect, useState } from "react";
+// import { usePrivy, useWallets } from "@privy-io/react-auth";
+// import React, { FC, ReactNode, createContext, useContext, useEffect, useState } from "react";
 // import { Address, WalletClient } from "viem";
 // import { useAccount, usePublicClient, useWalletClient } from "wagmi";
 
@@ -26,11 +26,11 @@ import React, { FC, ReactNode, createContext, useContext, useEffect, useState } 
 // export default WalletProvider;
 
 // export const useWalletContext = () => useContext(WalletContext);
-export const useWallet = () => {
-  const { ready, wallets } = useWallets();
-  const singleWallet = wallets?.[0];
-  return {
-    ...singleWallet,
-    ready,
-  };
-};
+// export const useWallet = () => {
+//   const { ready, wallets } = useWallets();
+//   const singleWallet = wallets?.[0];
+//   return {
+//     ...singleWallet,
+//     ready,
+//   };
+// };

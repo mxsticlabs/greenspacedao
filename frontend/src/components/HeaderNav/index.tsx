@@ -31,9 +31,8 @@ export function HeaderNav() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isMobileNavbarOpen, onToggle: onMobileNavbarToggle, onClose: onMobileNavbarClose } = useDisclosure();
   const { colorMode } = useColorMode();
-
-  const { user, ready } = useInAppAuth();
-  const { isAuthenticated, address } = useAppContext();
+  const { ready } = useInAppAuth();
+  const { currentUser } = useAppContext();
 
   const { scrollY } = useScroll();
   const headerOpacity = useTransform(scrollY, [0, 50], [0.8, 1]);
@@ -132,7 +131,7 @@ export function HeaderNav() {
 
             {(isMobileSize || isTabletSize) && (
               <>
-                {!user && <RegisterButton onClick={onOpen} styleProps={{ size: "sm" }} />}
+                {ready && !currentUser && <RegisterButton onClick={onOpen} styleProps={{ size: "sm" }} />}
                 <IconButton ml={1} onClick={onMobileNavbarToggle} fontSize={24} aria-label="toggle mobile menu">
                   <LuMenu />
                 </IconButton>

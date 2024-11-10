@@ -23,6 +23,7 @@ import { MEETING, TPeerMetadata, USER } from "src/types";
 
 import PageLoader from "src/components/PageLoader";
 import { useInAppAuth } from "src/hooks/common";
+import { useAppContext } from "src/context/state";
 
 interface Props {
   token: string;
@@ -38,12 +39,12 @@ export default function MeetPage({ roomId: roomIdFromServer }: InferGetServerSid
   const [createToken] = useCreateTokenMutation();
   const [meeting, setMeeting] = useState<MEETING | undefined>();
   const [queryMeeting, { isFetching, isLoading }] = useLazyGetMeetingQuery();
-  const [user, setUser] = useState<USER | null>(null);
+ 
   const activePeers = useActivePeers();
   // const { data } = useGetMeetingQuery({ roomId: roomId as string });
   // const meeting = data?.data;
 
-  const { user: privyUser } = useInAppAuth();
+  const { currentUser } = useAppContext();
   const [getUser, { data: savedUser }] = useLazyGetUserQuery();
 
   const [displayName, setDisplayName] = useState<string>("");
@@ -61,11 +62,11 @@ export default function MeetPage({ roomId: roomIdFromServer }: InferGetServerSid
     },
     onJoin: (data) => {
       updateLocalPeerMetadata({
-        displayName: user?.fullName! || displayName,
-        avatar: user?.avatar,
-        authId: user?.authId!,
-        address: user?.address,
-        username: user?.username!,
+        displayName: currentUser?.fullName! || displayName,
+        avatar: currentUser?.avatar as string,
+        authId: currentUser?.authId!,
+        address: currentUser?.address as string,
+        username: currentUser?.username!,
       });
     },
     onWaiting(data) {
@@ -104,13 +105,13 @@ export default function MeetPage({ roomId: roomIdFromServer }: InferGetServerSid
   //     screenShareRef.current.srcObject = shareScreenStream;
   //   }
   // }, [shareScreenStream]);
-  useEffect(() => {
-    getUser({ usernameOrAuthId: privyUser?.id as string })
-      .unwrap()
-      .then((res) => {
-        setUser(res.data as USER);
-      });
-  }, [privyUser]);
+  // useEffect(() => {
+  //   getUser({ usernameOrAuthId: currentUser?.authId as string })
+  //     .unwrap()
+  //     .then((res) => {
+  //       setUser(res.data as USER);
+  //     });
+  // }, [currentUser?.authId]);
   async function handleJoinRoom(token?: string) {
     try {
       // setIsJoining(true);
@@ -131,15 +132,15 @@ export default function MeetPage({ roomId: roomIdFromServer }: InferGetServerSid
     try {
       setIsJoining(true);
 
-      const isCreator = meeting?.userId == user?.authId;
+      const isCreator = meeting?.userId == currentUser?.authId;
 
       const tokenResponse = await createToken({
         params: { isCreator, roomId },
         metadata: {
-          address: user?.address || "",
-          displayName: user?.fullName || displayName,
-          avatar: user?.avatar,
-          authId: user?.authId!,
+          address: currentUser?.address || "",
+          displayName: currentUser?.fullName || displayName,
+          avatar: currentUser?.avatar as string,
+          authId: currentUser?.authId!,
         },
       }).unwrap();
       const data = tokenResponse.data;
@@ -153,10 +154,10 @@ export default function MeetPage({ roomId: roomIdFromServer }: InferGetServerSid
     }
   }
   useEffect(() => {
-    const isCreator = !isEmpty(user) && !isEmpty(meeting) && meeting?.userId == user?.authId;
-    console.log({ meeting, user, isCreator });
+    const isCreator = !isEmpty(currentUser) && !isEmpty(meeting) && meeting?.userId == currentUser?.authId;
+    console.log({ meeting, user: currentUser, isCreator });
     setIsRoomCreator(isCreator);
-  }, [meeting, user]);
+  }, [meeting, currentUser]);
   function handleChatAreaMinimize(isMinimized: boolean) {
     setIsMinimized(isMinimized);
   }

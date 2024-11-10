@@ -10,7 +10,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   return mainHandler(req, res, {
     GET,
-    POST,
+    POST
   });
 }
 
@@ -26,7 +26,7 @@ export const GET: HTTP_METHOD_CB = async (req: NextApiRequest, res: NextApiRespo
             lte(appointments.startTime, new Date()),
             eq(appointments.requestedBy, rId as string),
             eq(appointments.status, status as APPOINTMENT_STATUS)
-          ),
+          )
         };
       } else if (!isEmpty(nId)) {
         where = {
@@ -34,20 +34,20 @@ export const GET: HTTP_METHOD_CB = async (req: NextApiRequest, res: NextApiRespo
             lte(appointments.startTime, new Date()),
             eq(appointments.nutritionistId, nId as string),
             eq(appointments.status, status as APPOINTMENT_STATUS)
-          ),
+          )
         };
       }
     }
     // if requestedBy Id was provided
     if (!isEmpty(rId) && isEmpty(nId)) {
       where = {
-        where: and(eq(appointments.requestedBy, rId as string), eq(appointments.status, status as APPOINTMENT_STATUS)),
+        where: and(eq(appointments.requestedBy, rId as string), eq(appointments.status, status as APPOINTMENT_STATUS))
       };
     }
     // if nutritionistId was provided
     if (!isEmpty(nId) && isEmpty(rId)) {
       where = {
-        where: and(eq(appointments.requestedBy, rId as string), eq(appointments.status, status as APPOINTMENT_STATUS)),
+        where: and(eq(appointments.requestedBy, rId as string), eq(appointments.status, status as APPOINTMENT_STATUS))
       };
     }
     const appointmentsResult = await db.query.appointments.findMany({
@@ -59,9 +59,8 @@ export const GET: HTTP_METHOD_CB = async (req: NextApiRequest, res: NextApiRespo
             authId: true,
             fullName: true,
             avatar: true,
-            username: true,
-            userType: true,
-          },
+            username: true
+          }
         },
         nutritionist: {
           columns: {
@@ -69,19 +68,19 @@ export const GET: HTTP_METHOD_CB = async (req: NextApiRequest, res: NextApiRespo
             authId: true,
             fullName: true,
             avatar: true,
-            username: true,
-          },
-        },
-      },
+            username: true
+          }
+        }
+      }
     });
     return successHandlerCallback(req, res, {
       message: "Data retrieved successfully",
-      data: appointmentsResult,
+      data: appointmentsResult
     });
   } catch (error) {
     return errorHandlerCallback(req, res, {
       message: "Something went wrong...",
-      data: null,
+      data: null
     });
   }
 };
@@ -92,10 +91,10 @@ export const POST: HTTP_METHOD_CB = async (req: NextApiRequest, res: NextApiResp
       const [insertRes] = await tx.insert(appointments).values({
         ...data,
         startTime: new Date(startTime),
-        endTime: new Date(endTime),
+        endTime: new Date(endTime)
       });
       const createdAppointment = await tx.query.appointments.findFirst({
-        where: eq(appointments.id, insertRes.insertId),
+        where: eq(appointments.id, insertRes.insertId)
         // with: {
         //   requestedBy: {
         //     columns: {
@@ -123,7 +122,7 @@ export const POST: HTTP_METHOD_CB = async (req: NextApiRequest, res: NextApiResp
     });
     return successHandlerCallback(req, res, {
       message: "Appointment created successfully",
-      data: createdAppointment,
+      data: createdAppointment
     });
   } catch (error) {
     console.log({ error });
@@ -131,7 +130,7 @@ export const POST: HTTP_METHOD_CB = async (req: NextApiRequest, res: NextApiResp
     return errorHandlerCallback(req, res, {
       message: "Something went wrong...",
       data: null,
-      error,
+      error
     });
   }
 };

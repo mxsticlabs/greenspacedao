@@ -16,14 +16,14 @@ import DashBoardLayout from "src/components/MemberDashboardLayout";
 import { Box, Textarea } from "@chakra-ui/react";
 import { useInAppAuth } from "src/hooks/common";
 import { useAccount } from "wagmi";
-import { useWallet } from "src/context/WalletProvider";
 import { Channel } from "pusher-js";
 import { pusherClient } from "src/lib/pusher/client";
 import { generateUrlSafeId, objectToSearchParams } from "src/utils";
+import { useAppContext } from "src/context/state";
 
 const samplePrompts = [
   "What nutrition is best for a female BMI of 20?",
-  "Any exercises I can do, without hurting my back?",
+  "Any exercises I can do, without hurting my back?"
 ];
 type ActionType = "LIST_THREAD_IDS" | "GET_THREAD" | "CREATE_THREAD_WITH_QUESTION" | "DELETE_THREAD" | "ASK_QUESTION";
 
@@ -46,13 +46,13 @@ interface ChatState {
 }
 
 const AiCoachPage = () => {
-  const { address } = useWallet();
+  const { address } = useAppContext();
   const { user } = useInAppAuth();
   const roomId = useMemo(() => generateUrlSafeId(16), []);
   const [state, updateState] = useReducer(
     (current: ChatState, update: Partial<ChatState>): ChatState => ({
       ...current,
-      ...update,
+      ...update
     }),
     {
       loading: false,
@@ -61,7 +61,7 @@ const AiCoachPage = () => {
       thread_threadIds: "",
       thread_messages: [],
       active_question: "",
-      active_question_disabled: false,
+      active_question_disabled: false
     }
   );
   console.log({ state });
@@ -132,14 +132,14 @@ const AiCoachPage = () => {
     await fetch(`/api/pusher/ai-coach?${objectToSearchParams({ addressOrAuthId: user?.id, roomId: roomId })}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify(data)
     });
   }
   const socketInitializer = () => {
     channelRef.current?.bind("evt::thread-ids", (data: any) => {
       console.log("evt::thread-ids: ", data);
       updateState({
-        thread_threadIds: data,
+        thread_threadIds: data
       });
     });
 
@@ -147,7 +147,7 @@ const AiCoachPage = () => {
       console.log("evt::thread-messages: ", data);
       updateState({
         thread_messages: data,
-        loading: false,
+        loading: false
       });
     });
 
@@ -155,7 +155,7 @@ const AiCoachPage = () => {
       console.log("evt::thread-created: ", data);
       updateState({
         thread_currentId: data,
-        thread_new: false,
+        thread_new: false
       });
     });
 
@@ -181,12 +181,12 @@ const AiCoachPage = () => {
                 type: "text",
                 text: {
                   value: activeResponseRef.current,
-                  annotations: [],
-                },
-              },
-            ],
-          } as any,
-        ],
+                  annotations: []
+                }
+              }
+            ]
+          } as any
+        ]
       });
       console.log("evt::stream-finished: ", data);
     });
@@ -201,7 +201,7 @@ const AiCoachPage = () => {
     updateState({
       thread_new: false,
       thread_currentId: threadId,
-      loading: true,
+      loading: true
     });
 
     // await sendData({
@@ -248,13 +248,13 @@ const AiCoachPage = () => {
               type: "text",
               text: {
                 value: state.active_question,
-                annotations: [],
-              },
-            },
-          ],
-        } as any,
+                annotations: []
+              }
+            }
+          ]
+        } as any
       ],
-      active_question: "",
+      active_question: ""
     });
   };
 
@@ -321,7 +321,7 @@ const AiCoachPage = () => {
                     placeholder="Ask me anything..."
                     onChange={(e) => {
                       updateState({
-                        active_question: e.target.value,
+                        active_question: e.target.value
                       });
                     }}
                     value={state.active_question}

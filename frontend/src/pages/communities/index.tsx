@@ -13,11 +13,13 @@ import { Link } from "@chakra-ui/next-js";
 import { CardLoading } from "src/components/CommunityPage/CardLoading";
 import { replaceCloudflareIpfs, shortenText } from "src/utils";
 import Head from "next/head";
+import { useAppContext } from "src/context/state";
 
 export default function CommunitiesPage() {
   const { data, isLoading, isFetching } = useGetCommunitiesQuery({});
   const communities = data?.data!;
-  const { isLoggedIn, user, connect } = useInAppAuth();
+  const { connect } = useInAppAuth();
+  const { isAuthenticated, currentUser } = useAppContext();
   const [joinCommunity, { isLoading: isJoiningComm }] = useJoinCommunityMutation();
   const [checkHasJoinCommunity, { isLoading: isCheckingJoin }] = useCheckHasJoinCommunityMutation();
   const [hasJoined, setHasJoined] = useState(false);
@@ -41,14 +43,14 @@ export default function CommunitiesPage() {
   }, [communities, searchTerm]);
 
   async function handleJoinCommunity(community: Community) {
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       connect();
       return;
     }
     await checkHasJoinCommunity({
       communityId: community.id,
       spaceIdOrId: community.spaceId,
-      userId: user?.id!
+      userId: currentUser?.authId as string
     })
       .unwrap()
       .then(async (res) => {
@@ -58,7 +60,7 @@ export default function CommunitiesPage() {
           await joinCommunity({
             communityId: community.id,
             spaceIdOrId: community.spaceId,
-            userId: user?.id!
+            userId: currentUser?.authId as string
           }).unwrap();
         }
       });

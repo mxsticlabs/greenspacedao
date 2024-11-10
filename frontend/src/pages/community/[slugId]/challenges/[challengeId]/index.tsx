@@ -33,11 +33,13 @@ import GetNotifiedForm from "src/components/GetNotified";
 import { useEffect } from "react";
 import { useInAppAuth } from "src/hooks/common";
 import { BsChevronLeft } from "react-icons/bs";
+import { useAppContext } from "src/context/state";
 
 export default function ChallengePage({
   challengeId: challengeIdFromServer
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const { connect, isLoggedIn, user } = useInAppAuth();
+  const { connect } = useInAppAuth();
+  const { isAuthenticated, currentUser } = useAppContext();
   const router = useRouter();
   const challengeSlug = challengeIdFromServer || (router.query?.challengeId as string);
   const {
@@ -64,29 +66,29 @@ export default function ChallengePage({
   }
 
   async function handleChallengeJoin() {
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       connect();
       return;
     }
     await joinChallenge({
       challengeId: challenge?.id,
-      userId: user?.id as string,
+      userId: currentUser?.authId as string,
       slugId: challengeSlug
     }).unwrap();
   }
 
   useEffect(
     () => {
-      if (isLoggedIn && challenge?.id) {
+      if (isAuthenticated && challenge?.id) {
         checkChallengeJoin({
           challengeId: challenge?.id,
-          userId: user?.id as string,
+          userId: currentUser?.authId as string,
           slugId: challengeSlug
         });
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isLoadingJoin, isLoading, isLoggedIn, user?.id, challenge?.id, challengeSlug]
+    [isLoadingJoin, isLoading, isAuthenticated, currentUser?.authId as string, challenge?.id, challengeSlug]
   );
 
   const bgColor = useColorModeValue("white", "gray.800");

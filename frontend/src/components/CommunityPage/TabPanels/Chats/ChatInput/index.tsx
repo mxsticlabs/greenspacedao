@@ -2,10 +2,9 @@ import { useFormik } from "formik";
 import { HStack, Input, Button, useColorModeValue } from "@chakra-ui/react";
 import { FiSend } from "react-icons/fi";
 import { FormEventHandler, FormEvent } from "react";
-import { USER_SESSION } from "src/state/types";
-import { User } from "@privy-io/react-auth";
+import { UserSelect } from "src/types";
 
-export default function CommunityChatInput({ spaceIdOrId, user }: { user: User | null; spaceIdOrId: string }) {
+export default function CommunityChatInput({ spaceIdOrId, user }: { user: UserSelect | null; spaceIdOrId: string }) {
   const bgColor = useColorModeValue("gray.100", "gray.800");
   const inputBorderColor = useColorModeValue("gray.300", "gs-yellow.400");
   const inputPlaceholderColor = useColorModeValue("gray.500", "gray.400");
@@ -32,7 +31,7 @@ export default function CommunityChatInput({ spaceIdOrId, user }: { user: User |
       await fetch(`/api/pusher/chat?communityId=${spaceIdOrId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, userId: user?.id })
+        body: JSON.stringify({ message, userId: user?.authId })
       });
     } catch (error) {}
   }

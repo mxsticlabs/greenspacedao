@@ -1,15 +1,16 @@
+import { useAppContext } from "src/context/state";
 import { LoginAndRegisterButtons } from "../LoginAndRegisterButtons";
 import { UserMenu } from "../UserMenu";
 
 import { useInAppAuth } from "src/hooks/common";
 
 export const ConnectOrLogout = ({ openModal }: { openModal: () => void }) => {
-  const { ready, user } = useInAppAuth();
-
+  const { ready } = useInAppAuth();
+  const { currentUser } = useAppContext();
   return (
     <>
-      {!user && <LoginAndRegisterButtons openModal={openModal} />}
-      {ready && user && <UserMenu />}
+      {!currentUser && <LoginAndRegisterButtons openModal={openModal} />}
+      {ready && currentUser && <UserMenu />}
     </>
   );
 };

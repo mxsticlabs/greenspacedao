@@ -16,9 +16,9 @@ import BoringAvatar from "boring-avatars";
 import { useEffect, useState } from "react";
 import { useInAppAuth } from "src/hooks/common";
 import { useAppContext } from "src/context/state";
+import { LuChevronDown } from "react-icons/lu";
 
 export const UserMenu = () => {
-  const { user } = useInAppAuth();
   const { currentUser, isFetchingUser } = useAppContext();
   const getFirstName = (name: string) => name?.split?.(" ")[0];
   const [isAdmin, setIsAdmin] = useState(false);
@@ -48,6 +48,7 @@ export const UserMenu = () => {
       {!isFetchingUser && currentUser && (
         <Menu>
           <MenuButton
+            // rightIcon={}
             as={Button}
             rounded={"full"}
             // variant={"outline"}
@@ -57,8 +58,8 @@ export const UserMenu = () => {
           >
             <HStack>
               <Text as={"span"}>Hi, {getFirstName(currentUser?.fullName!)}</Text>
-              <Avatar size={"sm"} name={currentUser?.fullName!} src={currentUser?.avatar || ""}></Avatar>{" "}
-              {/* <BsChevronDown /> */}
+              <Avatar size={"sm"} name={currentUser?.fullName!} src={currentUser?.avatar || ""}></Avatar>
+              <LuChevronDown />
             </HStack>
           </MenuButton>
           {/* <Portal> */}

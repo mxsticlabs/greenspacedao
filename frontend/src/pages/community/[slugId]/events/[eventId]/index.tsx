@@ -33,11 +33,13 @@ import GetNotifiedForm from "src/components/GetNotified";
 import { useEffect } from "react";
 import { useInAppAuth } from "src/hooks/common";
 import { BsChevronLeft } from "react-icons/bs";
+import { useAppContext } from "src/context/state";
 
 export default function EventPage({
   eventId: eventIdFromServer
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const { connect, isLoggedIn, user } = useInAppAuth();
+  const { connect } = useInAppAuth();
+  const { currentUser, isAuthenticated } = useAppContext();
   const router = useRouter();
   const eventSlug = eventIdFromServer || (router.query?.eventId as string);
   const {
@@ -63,29 +65,29 @@ export default function EventPage({
   }
 
   async function handleEventJoin() {
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       connect();
       return;
     }
     await joinEvent({
       eventId: event?.id,
-      userId: user?.id as string,
+      userId: currentUser?.authId as string,
       slugId: eventSlug
     }).unwrap();
   }
 
   useEffect(
     () => {
-      if (isLoggedIn && event?.id) {
+      if (isAuthenticated && event?.id) {
         checkEventJoin({
           eventId: event?.id,
-          userId: user?.id as string,
+          userId: currentUser?.authId as string,
           slugId: eventSlug
         });
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isLoadingJoin, isLoading, isLoggedIn, user?.id, event?.id, eventSlug]
+    [isLoadingJoin, isLoading, isAuthenticated, currentUser?.authId, event?.id, eventSlug]
   );
 
   const bgColor = useColorModeValue("white", "gray.800");

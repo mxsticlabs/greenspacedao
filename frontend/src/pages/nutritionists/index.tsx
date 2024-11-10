@@ -38,9 +38,9 @@ import { useEffect, useState } from "react";
 //@ts-ignore
 import DatePicker from "react-datepicker";
 import { HiOutlineCalendar, HiOutlineLocationMarker, HiSearch } from "react-icons/hi";
-import { usePrivy } from "@privy-io/react-auth";
 import { addMinutesToDate, convertJsDateToMysqlDate } from "src/utils";
 import PageLoader from "src/components/PageLoader";
+import { useAppContext } from "src/context/state";
 
 const data: Partial<Nutritionist>[] = [
   {
@@ -87,7 +87,7 @@ export default function NutritionistPage() {
     title: "Your appointment was booked successfully"
   });
 
-  const { user } = usePrivy();
+  const { currentUser } = useAppContext();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { data: nutritionistResponse, isLoading: isLoadingNutritionists } = useGetNutritionistsQuery({});
   console.log({ nutritionistResponse });
@@ -100,7 +100,7 @@ export default function NutritionistPage() {
   const [showBookingDetails, setShowBookingDetails] = useState(false);
   const [sectionDuration, setSectionDuration] = useState(30);
   const [appointment, setAppointment] = useState<NewAppointment>({
-    requestedBy: user?.id,
+    requestedBy: currentUser?.authId as string,
     duration: sectionDuration,
     nutritionistId: "",
     startTime: null,
@@ -146,7 +146,7 @@ export default function NutritionistPage() {
     setSelectedNutritionist(null);
     setSectionDuration(30);
     setAppointment({
-      requestedBy: user?.id,
+      requestedBy: currentUser?.authId as string,
       duration: sectionDuration,
       nutritionistId: "",
       startTime: null,
@@ -166,13 +166,13 @@ export default function NutritionistPage() {
   useEffect(() => {
     setAppointment((prev) => ({
       ...prev,
-      requestedBy: user?.id,
+      requestedBy: currentUser?.authId as string,
       duration: sectionDuration,
       startTime: convertJsDateToMysqlDate(bookingDate),
       endTime: convertJsDateToMysqlDate(addMinutesToDate(sectionDuration, bookingDate))
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bookingDate, sectionDuration, user]);
+  }, [bookingDate, sectionDuration, currentUser]);
 
   useEffect(() => {
     const filtered = data.filter(

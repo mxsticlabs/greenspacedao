@@ -26,12 +26,14 @@ import isEmpty from "just-is-empty";
 import { useCreateCommunityMutation } from "src/state/services";
 import { BsChevronLeft } from "react-icons/bs";
 import { Link } from "@chakra-ui/next-js";
+import { useAppContext } from "src/context/state";
 
 const NewCommunityPage = () => {
   const { mutateAsync: uploadToThirdweb } = useStorageUpload();
   const [coverFile, setCoverFile] = useState<File>();
   const [displayImageFile, setDisplayImageFile] = useState<File>();
-  const { user, connect } = useInAppAuth();
+  const { connect } = useInAppAuth();
+  const { currentUser } = useAppContext();
   const [createCommunity, {}] = useCreateCommunityMutation();
   const toast = useToast({
     duration: 3000,
@@ -46,7 +48,7 @@ const NewCommunityPage = () => {
       visibility: true
     },
     onSubmit: async (values, actions) => {
-      if (isEmpty(user)) {
+      if (isEmpty(currentUser)) {
         connect();
         return;
       }
@@ -58,7 +60,7 @@ const NewCommunityPage = () => {
           visibility: values.visibility ? "public" : "private",
           coverImage: "",
           displayImage: "",
-          userId: user?.id
+          userId: currentUser?.authId as string
         };
         if (coverFile) {
           const coverImageRes = await uploadToThirdweb({ data: [coverFile] });

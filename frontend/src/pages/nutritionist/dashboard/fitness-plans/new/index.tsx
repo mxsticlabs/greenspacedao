@@ -2,7 +2,6 @@ import { Box, Button, Flex, HStack, Input, Stack, Textarea, useToast } from "@ch
 import NutritionistDashboardLayout from "src/components/NutritionistDashboardLayout";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
 
-
 import DragAndDropImage from "src/components/DragAndDropImage";
 
 import { generateSlug } from "src/utils";
@@ -14,6 +13,7 @@ import { useInAppAuth } from "src/hooks/common";
 import { useStorageUpload } from "@thirdweb-dev/react";
 import { resolveIPFSURI } from "src/helpers";
 import TextEditor from "src/components/TextEditor";
+import { useAppContext } from "src/context/state";
 
 export default function NewPostPage() {
   const [addFitnessPlan, { isLoading, status, isSuccess, isError, data }] = useAddFitnessPlanMutation();
@@ -23,9 +23,9 @@ export default function NewPostPage() {
     duration: 3000,
     position: "top",
     status: "success",
-    title: " Successful",
+    title: " Successful"
   });
-  const { user } = useInAppAuth();
+  const { currentUser } = useAppContext();
   const [imageFile, setImageFile] = useState<string>();
   const { mutateAsync: uploadToThirdWeb } = useStorageUpload();
 
@@ -39,7 +39,7 @@ export default function NewPostPage() {
     intro: "",
     image: "",
     status: "draft",
-    userId: user?.id!,
+    userId: currentUser?.authId!
   });
 
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
@@ -64,7 +64,7 @@ export default function NewPostPage() {
       const postToSave = {
         ...post,
         slug: generateSlug(post.title),
-        image: imageUrl,
+        image: imageUrl
       };
 
       await addFitnessPlan(postToSave).unwrap();
@@ -82,7 +82,7 @@ export default function NewPostPage() {
         ...post,
         status: "published" as PostStatus,
         slug: generateSlug(post.title),
-        image: imageUrl,
+        image: imageUrl
       };
 
       await addFitnessPlan(postToSave).unwrap();
@@ -107,7 +107,7 @@ export default function NewPostPage() {
       intro: "",
       image: "",
       status: "draft",
-      userId: user?.id!,
+      userId: currentUser?.authId!
     });
     setContentValue("");
     setImageFile(undefined);
@@ -122,16 +122,16 @@ export default function NewPostPage() {
         router.replace("/nutritionist/dashboard/fitness-plans");
       }, 2000);
     }
-    return () => clearTimeout(timeoutId);
+    return () => clearTimeout(timeoutId!);
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.message, isSuccess]);
   useEffect(() => {
     setPost((prev) => ({
       ...prev,
       content: contentValue,
-      userId: user?.id!,
+      userId: currentUser?.authId!
     }));
-  }, [contentValue, user?.id]);
+  }, [contentValue, currentUser?.authId]);
   return (
     <>
       <NutritionistDashboardLayout>

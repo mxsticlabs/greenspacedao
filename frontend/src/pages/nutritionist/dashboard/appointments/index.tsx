@@ -11,7 +11,7 @@ import {
   Th,
   Thead,
   Tr,
-  Avatar,
+  Avatar
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 import NutritionistDashBoardLayout from "src/components/NutritionistDashboardLayout";
@@ -27,11 +27,12 @@ import { HiPhone } from "react-icons/hi2";
 import DashboardEmptyArea from "src/components/DashboardEmptyArea";
 import { useAddMeetingMutation, useCreateRoomMutation } from "src/state/services";
 import { useInAppAuth } from "src/hooks/common";
+import { useAppContext } from "src/context/state";
 
 export default function DashBoard() {
   const today = new Date().getTime();
   const router = useRouter();
-  const { user } = useInAppAuth();
+  const { currentUser } = useAppContext();
   const [meetingTitle, setMeetingTitle] = useState("Discussion");
   const [isSending, setIsSending] = useState(false);
 
@@ -47,7 +48,7 @@ export default function DashBoard() {
       const response = await axios.post<{
         data: { roomId: string; token: string };
       }>("/api/create-room", {
-        title: meetingTitle,
+        title: meetingTitle
         // userMeta: session.user,
       });
       const data = response.data.data;
@@ -57,7 +58,7 @@ export default function DashBoard() {
       await addMeeting({
         roomId: roomId as string,
         title: meetingTitle,
-        userId: user?.id,
+        userId: currentUser?.authId as string
       })
         .unwrap()
         .then(() => {

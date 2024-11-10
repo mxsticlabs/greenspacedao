@@ -39,6 +39,7 @@ export const authOptions: AuthOptions = {
           user.username = createdUser.username;
           user.address = createdUser.address as string;
           user.fullName = createdUser.fullName as string;
+          user.authId = createdUser?.authId as string;
         }
       } else {
         user.id = existingUser.id;

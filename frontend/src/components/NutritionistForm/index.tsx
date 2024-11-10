@@ -29,10 +29,10 @@ import { Link } from "@chakra-ui/next-js";
 import { useFormik } from "formik";
 import { useStorageUpload } from "@thirdweb-dev/react";
 import { useAddNutritionistMutation } from "src/state/services";
-import { Sex } from "src/state/types";
-import { useWallet } from "src/context/WalletProvider";
+
 import { BsUpload } from "react-icons/bs";
-import { usePrivy } from "@privy-io/react-auth";
+import { useAccount, useConnect } from "wagmi";
+import { config } from "src/config/wagmi";
 
 export interface NutritionistFormFields {
   fullName: string;
@@ -59,8 +59,8 @@ const NutritionistForm = ({
   });
   const { mutateAsync: uploadToThirdWeb } = useStorageUpload();
   const router = useRouter();
-  const { address, isConnected } = useWallet();
-  const { connectWallet } = usePrivy();
+  const { address, isConnected } = useAccount();
+  const { connect } = useConnect();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [cid, setCid] = useState("");
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
@@ -162,9 +162,14 @@ const NutritionistForm = ({
         // bg={bgColor}
         color={textColor}
       >
-        {!isConnected && (
+        {!address && (
           <HStack mb={2}>
-            <Button size={"lg"} rounded={"full"} colorScheme="gs-yellow" onClick={() => connectWallet()}>
+            <Button
+              size={"lg"}
+              rounded={"full"}
+              colorScheme="gs-yellow"
+              onClick={() => connect({ connector: config.connectors[0] })}
+            >
               Connect wallet
             </Button>
           </HStack>

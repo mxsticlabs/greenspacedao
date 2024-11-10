@@ -13,6 +13,7 @@ import { useInAppAuth } from "src/hooks/common";
 import { resolveIPFSURI } from "src/helpers";
 import { useStorageUpload } from "@thirdweb-dev/react";
 import TextEditor from "src/components/TextEditor";
+import { useAppContext } from "src/context/state";
 
 export default function NewPostPage() {
   const [addMealPlan, { isLoading, status, isSuccess, isError, data }] = useAddMealPlanMutation();
@@ -22,9 +23,10 @@ export default function NewPostPage() {
     duration: 3000,
     position: "top",
     status: "success",
-    title: " Successful",
+    title: " Successful"
   });
-  const { user } = useInAppAuth();
+
+  const { currentUser } = useAppContext();
   const [imageFile, setImageFile] = useState<string>();
   const { mutateAsync: uploadToThirdWeb } = useStorageUpload();
 
@@ -40,7 +42,7 @@ export default function NewPostPage() {
     image: "",
     time: "breakfast",
     status: "draft",
-    userId: user?.id!,
+    userId: currentUser?.authId!
   });
 
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
@@ -58,7 +60,7 @@ export default function NewPostPage() {
       const postToSave = {
         ...post,
         slug: generateSlug(post.title),
-        image: imageUrl,
+        image: imageUrl
       };
 
       await addMealPlan(postToSave).unwrap();
@@ -83,7 +85,7 @@ export default function NewPostPage() {
         ...post,
         status: "published" as PostStatus,
         slug: generateSlug(post.title),
-        image: imageFile,
+        image: imageFile
       };
 
       await addMealPlan(postToSave).unwrap();
@@ -109,14 +111,14 @@ export default function NewPostPage() {
       image: "",
       time: "breakfast",
       status: "draft",
-      userId: user?.id!,
+      userId: currentUser?.authId!
     });
     setContentValue("");
     setImageFile(undefined);
   }
 
   useEffect(() => {
-    let timeoutId: string | number | NodeJS.Timeout;
+    let timeoutId: string | number | NodeJS.Timeout = "";
     if (isSuccess) {
       resetFields();
       toast({ title: data?.message });
@@ -132,9 +134,9 @@ export default function NewPostPage() {
     setPost((prev) => ({
       ...prev,
       content: contentValue,
-      userId: user?.id!,
+      userId: currentUser?.authId!
     }));
-  }, [contentValue, user?.id]);
+  }, [contentValue, currentUser?.authId]);
   return (
     <>
       <NutritionistDashboardLayout>

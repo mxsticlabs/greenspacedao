@@ -1,14 +1,14 @@
-import { useInAppAuth } from "src/hooks/common";
 import { useAddMeetingMutation, useCreateRoomMutation } from "src/state/services";
 
-import { Button, Flex, FormControl, FormLabel, HStack, Input, useColorModeValue, Box } from "@chakra-ui/react";
+import { Button, Flex, FormControl, FormLabel, Input, useColorModeValue, Box } from "@chakra-ui/react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { KeyboardEvent, useState } from "react";
+import { useAppContext } from "src/context/state";
 
 export default function NewMeeting() {
   const router = useRouter();
-  const { user } = useInAppAuth();
+  const { currentUser } = useAppContext();
   const [meetingTitle, setMeetingTitle] = useState("Health discussions");
   const [isSending, setIsSending] = useState(false);
 
@@ -38,7 +38,7 @@ export default function NewMeeting() {
       await addMeeting({
         roomId: roomId as string,
         title: meetingTitle,
-        userId: user?.id
+        userId: currentUser?.authId as string
       }).unwrap();
 
       setIsSending(false);
