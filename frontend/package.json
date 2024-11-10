@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --port=3200",
     "build": "next build",
-    "start": "next start",
+    "start": "next start --port=3200",
     "lint": "next lint",
     "db:push": "drizzle-kit push:mysql"
   },
@@ -56,6 +56,7 @@
     "material-symbols": "^0.18.0",
     "mysql2": "^3.9.3",
     "next": "14.2.3",
+    "next-auth": "^4.24.10",
     "okto-sdk-react": "^0.1.2",
     "openai": "^4.33.0",
     "pino-pretty": "^10.2.3",

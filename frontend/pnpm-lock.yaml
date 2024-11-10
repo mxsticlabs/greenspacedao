@@ -12886,7 +12886,7 @@ snapshots:
       '@privy-io/public-api': 2.6.0(bufferutil@4.0.8)(utf-8-validate@5.0.10)
       eventemitter3: 5.0.1
       fetch-retry: 5.0.6
-      jose: 4.15.7
+      jose: 4.15.9
       js-cookie: 3.0.5
       set-cookie-parser: 2.6.0
       uuid: 9.0.1
@@ -19861,7 +19861,7 @@ snapshots:
       '@babel/runtime': 7.24.7
       '@panva/hkdf': 1.2.1
       cookie: 0.7.2
-      jose: 4.15.7
+      jose: 4.15.9
       next: 14.2.3(@babel/core@7.24.7)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       oauth: 0.9.15
       openid-client: 5.7.0
