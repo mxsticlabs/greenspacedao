@@ -1,4 +1,4 @@
-import { Box, Heading, Text, useColorModeValue, VStack, Container } from "@chakra-ui/react";
+import { Box, Heading, Text, useColorModeValue, VStack, Container, useDisclosure } from "@chakra-ui/react";
 import Head from "next/head";
 import MemberRegisterForm from "src/components/MemberRegisterForm";
 import { MemberRegisterFormFields } from "src/components/RegisterForm";
@@ -8,12 +8,13 @@ import { useRouter } from "next/router";
 import { useAppContext } from "src/context/state";
 import { useEffect, useState } from "react";
 import { OktoContextType, useOkto, type Wallet } from "okto-sdk-react";
+import AuthModal from "src/components/Auth/Modal";
 
 export default function OnboardMemberPage() {
   const [addUser, { isLoading: addUserLoading }] = useAddUserMutation();
 
-  const { user, connect } = useInAppAuth();
-
+  const { isOpen, onClose, onOpen } = useDisclosure();
+  const { connect, user } = useInAppAuth({ openModal: onOpen });
   // const [user, setUser] = useState<USER | undefined>(undefined);
   const router = useRouter();
   const [amount, setAmount] = useState("0.01");
@@ -105,6 +106,7 @@ export default function OnboardMemberPage() {
 
   return (
     <>
+      <AuthModal isOpen={isOpen} onClose={onClose} />
       <Head>
         <title>Welcome to GreenspaceDAO - Complete Your Profile</title>
         <link rel="icon" href="/favicon.ico" />

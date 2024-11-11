@@ -33,6 +33,7 @@ import { useAddNutritionistMutation } from "src/state/services";
 import { BsUpload } from "react-icons/bs";
 import { useAccount, useConnect } from "wagmi";
 import { config } from "src/config/wagmi";
+import { CustomConnectButton } from "../Auth/ConnectButton";
 
 export interface NutritionistFormFields {
   fullName: string;
@@ -60,7 +61,6 @@ const NutritionistForm = ({
   const { mutateAsync: uploadToThirdWeb } = useStorageUpload();
   const router = useRouter();
   const { address, isConnected } = useAccount();
-  const { connect } = useConnect();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [cid, setCid] = useState("");
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
@@ -164,14 +164,8 @@ const NutritionistForm = ({
       >
         {!address && (
           <HStack mb={2}>
-            <Button
-              size={"lg"}
-              rounded={"full"}
-              colorScheme="gs-yellow"
-              onClick={() => connect({ connector: config.connectors[0] })}
-            >
-              Connect wallet
-            </Button>
+            <CustomConnectButton />
+           
           </HStack>
         )}
         <FormControl isRequired>

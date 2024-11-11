@@ -10,7 +10,8 @@ import {
   Text,
   useBreakpoint,
   useColorMode,
-  useColorModeValue
+  useColorModeValue,
+  useDisclosure
 } from "@chakra-ui/react";
 import PageWrapper from "src/components/PageWrapper";
 import { useActiveTab, useInAppAuth } from "src/hooks/common";
@@ -27,6 +28,7 @@ import { TabHeading } from "src/components/CommunityPage/TabHeading";
 import { BsChevronBarLeft, BsChevronLeft } from "react-icons/bs";
 import { Link } from "@chakra-ui/next-js";
 import { replaceCloudflareIpfs } from "src/utils";
+import AuthModal from "src/components/Auth/Modal";
 
 const tabsObj = [
   {
@@ -65,7 +67,7 @@ export default function CommunityViewPage({
   const imageBgColor = useColorModeValue("gray.100", "gray.700");
 
   const slugId = slugIdFromServer || (router.query.slugId as string);
-  const { connect, user, isLoggedIn } = useInAppAuth();
+  const { isOpen, onClose, onOpen } = useDisclosure();
   const [activeTab, setActiveTab] = useActiveTab("tab");
   const breakpoint = useBreakpoint();
   const [tabs, setTabs] = useState(tabsObj);

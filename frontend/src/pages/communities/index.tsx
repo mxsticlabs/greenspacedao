@@ -2,7 +2,19 @@ import PageLoader from "src/components/PageLoader";
 import PageWrapper from "src/components/PageWrapper";
 import { HeaderNav } from "src/components/HeaderNav";
 
-import { Box, Button, Flex, Heading, Text, HStack, Stack, Image, useColorModeValue, Input } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Text,
+  HStack,
+  Stack,
+  Image,
+  useColorModeValue,
+  Input,
+  useDisclosure
+} from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { Community } from "src/types/shared";
 import { useRouter } from "next/router";
@@ -14,11 +26,13 @@ import { CardLoading } from "src/components/CommunityPage/CardLoading";
 import { replaceCloudflareIpfs, shortenText } from "src/utils";
 import Head from "next/head";
 import { useAppContext } from "src/context/state";
+import AuthModal from "src/components/Auth/Modal";
 
 export default function CommunitiesPage() {
   const { data, isLoading, isFetching } = useGetCommunitiesQuery({});
   const communities = data?.data!;
-  const { connect } = useInAppAuth();
+  const { isOpen, onClose, onOpen } = useDisclosure();
+  const { connect } = useInAppAuth({ openModal: onOpen });
   const { isAuthenticated, currentUser } = useAppContext();
   const [joinCommunity, { isLoading: isJoiningComm }] = useJoinCommunityMutation();
   const [checkHasJoinCommunity, { isLoading: isCheckingJoin }] = useCheckHasJoinCommunityMutation();
@@ -68,6 +82,7 @@ export default function CommunitiesPage() {
 
   return (
     <>
+      <AuthModal isOpen={isOpen} onClose={onClose} />
       {/* <PageWrapper> */}
       <Head>
         <title>GreenspaceDAO | Communities</title>

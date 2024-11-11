@@ -21,7 +21,7 @@ export function AppChakraProvider({ children }: { children: ReactNode }) {
   const { setAddress, setIsAuthenticated, setCurrentUser, currentUser, setIsFetchingUser, address } = useAppContext();
 
   const [updateUser] = useUpdateUserMutation();
-  const { isLoggedIn, authenticate } = useOkto() as OktoContextType;
+  const { isLoggedIn: isOktoLoggedIn, authenticate } = useOkto() as OktoContextType;
 
   // Memoize mutation to prevent unnecessary re-renders
   const { mutate } = useMutation({
@@ -96,7 +96,7 @@ export function AppChakraProvider({ children }: { children: ReactNode }) {
   // Fixed missing dependencies and added error handling
   useEffect(() => {
     const handleWalletCreation = async () => {
-      if (session?.id_token && !isLoggedIn) {
+      if (session?.id_token && !isOktoLoggedIn) {
         try {
           const authResult = await handleAuthenticate(session.id_token);
           if (authResult.result) {
@@ -124,7 +124,7 @@ export function AppChakraProvider({ children }: { children: ReactNode }) {
   }, [
     createWallet,
     handleAuthenticate,
-    isLoggedIn,
+    isOktoLoggedIn,
     session?.id_token,
     currentUser?.authId,
     updateUser,

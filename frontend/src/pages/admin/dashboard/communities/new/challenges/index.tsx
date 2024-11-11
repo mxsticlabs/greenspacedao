@@ -18,6 +18,7 @@ import {
   Stack,
   Switch,
   Text,
+  useDisclosure,
   useToast
 } from "@chakra-ui/react";
 import DashboardLayout from "src/components/AdminDashboardLayout";
@@ -36,11 +37,14 @@ import { Link } from "@chakra-ui/next-js";
 import { InferGetServerSidePropsType, GetServerSidePropsContext } from "next/types";
 import { useRouter } from "next/router";
 import DatePicker from "react-datepicker";
+import AuthModal from "src/components/Auth/Modal";
+import { useAppContext } from "src/context/state";
 
 const NewChallengePage = ({
   cid: communityIdFromServerSideProps
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter();
+  const { isAuthenticated } = useAppContext();
   const communityId = communityIdFromServerSideProps || router.query.communityId;
   const { mutateAsync: uploadToThirdweb } = useStorageUpload();
   const uploaderRef = useRef<{ resetImages: () => void }>(null);
@@ -54,7 +58,8 @@ const NewChallengePage = ({
   const [detailsContent, setDetailsContent] = useState<string>("");
   const [challengeStartDate, setChallengeStartDate] = useState(new Date());
   const [challengeEndDate, setChallengeEndDate] = useState(new Date());
-  const { user, connect, isLoggedIn } = useInAppAuth();
+  const { isOpen, onClose, onOpen } = useDisclosure();
+  const { connect } = useInAppAuth({ openModal: onOpen });
   const editorRef = useRef<{ resetContent: () => void }>(null);
   const [createCommunityChallenge, {}] = useCreateCommunityChallengeMutation();
   const toast = useToast({
@@ -96,7 +101,7 @@ const NewChallengePage = ({
       endDate: challengeEndDate
     },
     onSubmit: async (values, actions) => {
-      if (!isLoggedIn) {
+      if (!isAuthenticated) {
         connect();
         return;
       }
@@ -163,171 +168,174 @@ const NewChallengePage = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detailsContent]);
   return (
-    <DashboardLayout>
-      <Flex direction={"column"} w={"full"} pb={5} px={4}>
-        <HStack mb={10}>
-          <Button
-            gap={2}
-            bg={"gray.700"}
-            variant={"solid"}
-            // pos={"absolute"}
-            top={3}
-            left={3}
-            colorScheme="gray"
-            zIndex={5}
-            as={Link}
-            _hover={{ bg: "gray.800" }}
-            href={"/admin/dashboard/communities"}
+    <>
+      <AuthModal isOpen={isOpen} onClose={onClose} />
+      <DashboardLayout>
+        <Flex direction={"column"} w={"full"} pb={5} px={4}>
+          <HStack mb={10}>
+            <Button
+              gap={2}
+              bg={"gray.700"}
+              variant={"solid"}
+              // pos={"absolute"}
+              top={3}
+              left={3}
+              colorScheme="gray"
+              zIndex={5}
+              as={Link}
+              _hover={{ bg: "gray.800" }}
+              href={"/admin/dashboard/communities"}
+            >
+              <BsChevronLeft /> <Text> Back</Text>
+            </Button>
+          </HStack>
+          <Heading mb={2} size={"lg"}>
+            Add new challenge
+          </Heading>
+          <Stack
+            gap={5}
+            mt={8}
+            divider={<Divider />}
+            as={"form"}
+            /* @ts-ignore */
+            onSubmit={formik.handleSubmit}
           >
-            <BsChevronLeft /> <Text> Back</Text>
-          </Button>
-        </HStack>
-        <Heading mb={2} size={"lg"}>
-          Add new challenge
-        </Heading>
-        <Stack
-          gap={5}
-          mt={8}
-          divider={<Divider />}
-          as={"form"}
-          /* @ts-ignore */
-          onSubmit={formik.handleSubmit}
-        >
-          <FormControl isRequired>
-            <FormLabel htmlFor="Challenge-name">Challenge title:</FormLabel>
-            <Input
-              rounded={"12px"}
-              isRequired
-              id="Challenge-name"
-              h={"auto"}
-              fontWeight={500}
-              _focus={{
-                boxShadow: "0 0 0 1px transparent",
-                borderColor: "gs-yellow.400"
-              }}
-              autoComplete="off"
-              name="title"
-              value={formik.values.title}
-              py={3}
-              placeholder="Challenge title"
-              fontSize={20}
-              onChange={formik.handleChange}
-              // size={"md"}
-            />
-          </FormControl>
-
-          <Box>
-            <FormLabel size={"md"} mt={2} mb={4} htmlFor="cover-image">
-              Cover image:
-            </FormLabel>
-            <CoverImageUploader ref={uploaderRef} inputId="cover-image" getCoverImageFile={handleGetCoverFile} />
-          </Box>
-          <HStack wrap={{ base: "wrap", md: "nowrap" }} gap={3}>
-            <FormControl isRequired maxW={250}>
-              <FormLabel htmlFor="venue">Venue:</FormLabel>
-              <Menu>
-                <MenuButton name="venue" as={Button} colorScheme="gs-yellow" rightIcon={<BsChevronDown />}>
-                  {formik.values.venue || "Choose Venue"}
-                </MenuButton>
-                <MenuList zIndex={3}>
-                  <MenuOptionGroup defaultValue="online" title="Venue" type="radio">
-                    <MenuItemOption
-                      name="venue"
-                      value="online"
-                      onClick={() => {
-                        formik.setFieldValue("venue", "online");
-                      }}
-                    >
-                      Online
-                    </MenuItemOption>
-                    <MenuItemOption
-                      name="venue"
-                      value="in-person"
-                      onClick={() => {
-                        formik.setFieldValue("venue", "in-person");
-                      }}
-                    >
-                      In Person
-                    </MenuItemOption>
-                  </MenuOptionGroup>
-                </MenuList>
-              </Menu>
-            </FormControl>
-            <FormControl>
-              <FormLabel htmlFor="location">Location:</FormLabel>
+            <FormControl isRequired>
+              <FormLabel htmlFor="Challenge-name">Challenge title:</FormLabel>
               <Input
                 rounded={"12px"}
-                placeholder="Block 123, Challenge Avenue, West Suite"
-                id="location"
-                name="location"
+                isRequired
+                id="Challenge-name"
+                h={"auto"}
+                fontWeight={500}
                 _focus={{
                   boxShadow: "0 0 0 1px transparent",
                   borderColor: "gs-yellow.400"
                 }}
-                value={formik.values.location}
+                autoComplete="off"
+                name="title"
+                value={formik.values.title}
+                py={3}
+                placeholder="Challenge title"
+                fontSize={20}
                 onChange={formik.handleChange}
+                // size={"md"}
               />
             </FormControl>
-          </HStack>
-          <HStack wrap={{ base: "wrap", md: "nowrap" }} gap={3}>
-            <FormControl isRequired>
-              <FormLabel htmlFor="details">Start Date:</FormLabel>
-              <DatePicker
-                minDate={new Date()}
-                className="gs-datepicker"
-                calendarClassName="gs-datepicker-calendar"
-                wrapperClassName="gs-datepicker-wrapper"
-                popperClassName="gs-datepicker-popper"
-                showTimeSelect
-                selectsStart
-                selected={challengeStartDate}
-                // TODO: use formik directly (value & onChange)
-                onSelect={(date: Date) => handleDateSelect(date, "start")} //when day is clicked
-                onChange={(date: Date) => handleDateChange(date, "start")} //only when value has changed
+
+            <Box>
+              <FormLabel size={"md"} mt={2} mb={4} htmlFor="cover-image">
+                Cover image:
+              </FormLabel>
+              <CoverImageUploader ref={uploaderRef} inputId="cover-image" getCoverImageFile={handleGetCoverFile} />
+            </Box>
+            <HStack wrap={{ base: "wrap", md: "nowrap" }} gap={3}>
+              <FormControl isRequired maxW={250}>
+                <FormLabel htmlFor="venue">Venue:</FormLabel>
+                <Menu>
+                  <MenuButton name="venue" as={Button} colorScheme="gs-yellow" rightIcon={<BsChevronDown />}>
+                    {formik.values.venue || "Choose Venue"}
+                  </MenuButton>
+                  <MenuList zIndex={3}>
+                    <MenuOptionGroup defaultValue="online" title="Venue" type="radio">
+                      <MenuItemOption
+                        name="venue"
+                        value="online"
+                        onClick={() => {
+                          formik.setFieldValue("venue", "online");
+                        }}
+                      >
+                        Online
+                      </MenuItemOption>
+                      <MenuItemOption
+                        name="venue"
+                        value="in-person"
+                        onClick={() => {
+                          formik.setFieldValue("venue", "in-person");
+                        }}
+                      >
+                        In Person
+                      </MenuItemOption>
+                    </MenuOptionGroup>
+                  </MenuList>
+                </Menu>
+              </FormControl>
+              <FormControl>
+                <FormLabel htmlFor="location">Location:</FormLabel>
+                <Input
+                  rounded={"12px"}
+                  placeholder="Block 123, Challenge Avenue, West Suite"
+                  id="location"
+                  name="location"
+                  _focus={{
+                    boxShadow: "0 0 0 1px transparent",
+                    borderColor: "gs-yellow.400"
+                  }}
+                  value={formik.values.location}
+                  onChange={formik.handleChange}
+                />
+              </FormControl>
+            </HStack>
+            <HStack wrap={{ base: "wrap", md: "nowrap" }} gap={3}>
+              <FormControl isRequired>
+                <FormLabel htmlFor="details">Start Date:</FormLabel>
+                <DatePicker
+                  minDate={new Date()}
+                  className="gs-datepicker"
+                  calendarClassName="gs-datepicker-calendar"
+                  wrapperClassName="gs-datepicker-wrapper"
+                  popperClassName="gs-datepicker-popper"
+                  showTimeSelect
+                  selectsStart
+                  selected={challengeStartDate}
+                  // TODO: use formik directly (value & onChange)
+                  onSelect={(date: Date) => handleDateSelect(date, "start")} //when day is clicked
+                  onChange={(date: Date) => handleDateChange(date, "start")} //only when value has changed
+                />
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel htmlFor="end-date">End Date:</FormLabel>
+                <DatePicker
+                  className="gs-datepicker"
+                  calendarClassName="gs-datepicker-calendar"
+                  wrapperClassName="gs-datepicker-wrapper"
+                  popperClassName="gs-datepicker-popper"
+                  minDate={challengeStartDate}
+                  showTimeSelect
+                  // inline
+                  selectsStart
+                  selected={challengeEndDate}
+                  // TODO: use formik directly (value & onChange)
+                  onSelect={(date: Date) => handleDateSelect(date, "end")} //when day is clicked
+                  onChange={(date: Date) => handleDateChange(date, "end")} //only when value has changed
+                />
+              </FormControl>
+            </HStack>
+            <Box>
+              <FormLabel size={"md"} mt={2} mb={4}>
+                Details about this challenge
+              </FormLabel>
+              <TextEditor
+                ref={editorRef}
+                onContentChange={(content) => setDetailsContent(content)}
+                initialValue={detailsContent}
               />
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel htmlFor="end-date">End Date:</FormLabel>
-              <DatePicker
-                className="gs-datepicker"
-                calendarClassName="gs-datepicker-calendar"
-                wrapperClassName="gs-datepicker-wrapper"
-                popperClassName="gs-datepicker-popper"
-                minDate={challengeStartDate}
-                showTimeSelect
-                // inline
-                selectsStart
-                selected={challengeEndDate}
-                // TODO: use formik directly (value & onChange)
-                onSelect={(date: Date) => handleDateSelect(date, "end")} //when day is clicked
-                onChange={(date: Date) => handleDateChange(date, "end")} //only when value has changed
-              />
-            </FormControl>
-          </HStack>
-          <Box>
-            <FormLabel size={"md"} mt={2} mb={4}>
-              Details about this challenge
-            </FormLabel>
-            <TextEditor
-              ref={editorRef}
-              onContentChange={(content) => setDetailsContent(content)}
-              initialValue={detailsContent}
-            />
-          </Box>
-          <HStack gap={4} pos={"sticky"} bottom={0} bg={"black"} zIndex={50} pt={1} pb={3}>
-            <Button
-              type="submit"
-              rounded={"full"}
-              colorScheme="gs-yellow"
-              isLoading={formik.isSubmitting}
-              loadingText="Creating challenge..."
-            >
-              Create challenge
-            </Button>
-          </HStack>
-        </Stack>
-      </Flex>
-    </DashboardLayout>
+            </Box>
+            <HStack gap={4} pos={"sticky"} bottom={0} bg={"black"} zIndex={50} pt={1} pb={3}>
+              <Button
+                type="submit"
+                rounded={"full"}
+                colorScheme="gs-yellow"
+                isLoading={formik.isSubmitting}
+                loadingText="Creating challenge..."
+              >
+                Create challenge
+              </Button>
+            </HStack>
+          </Stack>
+        </Flex>
+      </DashboardLayout>
+    </>
   );
 };
 export default NewChallengePage;

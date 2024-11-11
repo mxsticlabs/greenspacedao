@@ -1,5 +1,6 @@
-import { Box, Button, Flex, Text, useColorModeValue } from "@chakra-ui/react";
+import { Box, Button, Flex, Text, useColorModeValue, useDisclosure } from "@chakra-ui/react";
 import { ReactNode, useCallback, useEffect } from "react";
+import AuthModal from "src/components/Auth/Modal";
 import { useAppContext } from "src/context/state";
 import { useInAppAuth } from "src/hooks/common";
 import { useCheckHasJoinCommunityMutation, useGetCommunityQuery, useJoinCommunityMutation } from "src/state/services";
@@ -21,8 +22,9 @@ export const NotAMemberMiddlewareComp = ({
   styleProps,
   children
 }: Props) => {
-  const { connect, isLoggedIn } = useInAppAuth();
-  const { currentUser } = useAppContext();
+  const { isOpen, onClose, onOpen } = useDisclosure();
+  const { connect } = useInAppAuth({ openModal: onOpen });
+  const { currentUser, isAuthenticated } = useAppContext();
   const { data: communityResponse } = useGetCommunityQuery({
     spaceIdOrId
   });
@@ -54,9 +56,9 @@ export const NotAMemberMiddlewareComp = ({
     useCheckHasJoinCommunityMutation();
   const hasJoined = hasJoinResponse?.data?.hasJoined;
 
-  const checkCommunityJoinCb = useCallback(checkCommunityJoin, [isLoggedIn, spaceIdOrId, checkCommunityJoin]);
+  const checkCommunityJoinCb = useCallback(checkCommunityJoin, [isAuthenticated, spaceIdOrId, checkCommunityJoin]);
   useEffect(() => {
-    if (isLoggedIn && community?.id) {
+    if (isAuthenticated && community?.id) {
       checkCommunityJoinCb({
         communityId: community?.id,
         userId: currentUser?.authId as string,
@@ -64,11 +66,12 @@ export const NotAMemberMiddlewareComp = ({
         spaceIdOrId: community?.spaceId
       });
     }
-  }, [isLoggedIn, community?.spaceId, community?.id, checkCommunityJoinCb, currentUser?.authId]);
+  }, [isAuthenticated, community?.spaceId, community?.id, checkCommunityJoinCb, currentUser?.authId]);
   return (
     <>
+      <AuthModal isOpen={isOpen} onClose={onClose} />
       {!isLoadingHasJoin && hasJoined && children ? children : <></>}
-      {((!isLoadingHasJoin && !hasJoined) || !isLoggedIn) && (
+      {((!isLoadingHasJoin && !hasJoined) || !isAuthenticated) && (
         <Flex
           gap={4}
           px={4}

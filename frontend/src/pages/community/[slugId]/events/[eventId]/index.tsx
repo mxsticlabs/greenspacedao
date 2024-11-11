@@ -15,7 +15,8 @@ import {
   ListItem,
   Stack,
   Text,
-  useColorModeValue
+  useColorModeValue,
+  useDisclosure
 } from "@chakra-ui/react";
 import MarkdownRenderer from "src/components/MarkdownRenderer";
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
@@ -34,11 +35,13 @@ import { useEffect } from "react";
 import { useInAppAuth } from "src/hooks/common";
 import { BsChevronLeft } from "react-icons/bs";
 import { useAppContext } from "src/context/state";
+import AuthModal from "src/components/Auth/Modal";
 
 export default function EventPage({
   eventId: eventIdFromServer
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const { connect } = useInAppAuth();
+  const { isOpen, onClose, onOpen } = useDisclosure();
+  const { connect } = useInAppAuth({ openModal: onOpen });
   const { currentUser, isAuthenticated } = useAppContext();
   const router = useRouter();
   const eventSlug = eventIdFromServer || (router.query?.eventId as string);
@@ -96,6 +99,7 @@ export default function EventPage({
 
   return (
     <>
+      <AuthModal isOpen={isOpen} onClose={onClose} />
       <Head>
         <title>{event?.title}</title>
         <meta name="description" content={event?.details} />

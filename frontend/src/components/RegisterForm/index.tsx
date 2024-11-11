@@ -10,7 +10,8 @@ import {
   ModalCloseButton,
   Box,
   IconButton,
-  HStack
+  HStack,
+  useDisclosure
 } from "@chakra-ui/react";
 import { NewUserType, RegisterType } from "src/components/NewUserType";
 import { Swiper, SwiperRef, SwiperSlide } from "swiper/react";
@@ -32,6 +33,7 @@ import { useAppContext } from "../../context/state";
 import { useDebounce, useInAppAuth } from "src/hooks/common";
 import { OktoContextType, useOkto, Wallet } from "okto-sdk-react";
 import { useAccount } from "wagmi";
+import AuthModal from "../Auth/Modal";
 
 export interface MemberRegisterFormFields {
   fullName: string;
@@ -109,7 +111,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ isOpen, onClose }) => {
   const [amount, setAmount] = useState("0.01");
   const debouncedAmount = useDebounce<string>(amount, 500);
   const [memberInitialValues, setMemberInitialValues] = useState<MemberRegisterFormFields>();
-  const { user, connect } = useInAppAuth();
+  const { isOpen: isAuthModalOpen, onClose: onAuthModalClose, onOpen } = useDisclosure();
+  const { user, connect } = useInAppAuth({ openModal: onOpen });
   const swiperRef = useRef<SwiperRef>();
   const { getWallets, createWallet } = useOkto() as OktoContextType;
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
@@ -250,69 +253,72 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ isOpen, onClose }) => {
     }
   }
   return (
-    <Modal scrollBehavior="inside" blockScrollOnMount={false} isOpen={isOpen} onClose={onClose} size="lg">
-      <ModalOverlay />
-      <ModalContent rounded="30px" alignSelf="center">
-        <ModalHeader fontSize={{ lg: "3xl", base: "xl" }}>
-          <HStack spacing={4} align="center" mb={0}>
-            {activeSlideIndex === 1 && (
-              <IconButton
-                aria-label="Back"
-                colorScheme="gs-yellow"
-                variant="ghost"
-                rounded="full"
-                size="sm"
-                onClick={() => swiperRef.current?.swiper.slidePrev()}
-              >
-                <BsChevronLeft size={20} />
-              </IconButton>
-            )}
-          </HStack>
-        </ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Box
-            as={Swiper}
-            onActiveIndexChange={(swiper: SwiperMain) => {
-              setActiveSlideIndex(swiper.activeIndex);
-            }}
-            ref={swiperRef as React.RefObject<SwiperRef>}
-            allowTouchMove={false}
-          >
-            <SwiperSlide>
-              <NewUserType
-                onClick={() => swiperRef.current?.swiper.slideNext()}
-                getValue={(value) => {
-                  setSelectedUserType(value);
-                }}
-              />
-            </SwiperSlide>
-            <SwiperSlide>
-              {activeSlideIndex > 0 && (
-                <>
-                  {selectedUserType === "member" && (
-                    <MemberRegisterForm
-                      onSubmit={handleMemberFormSubmit}
-                      onClose={onClose}
-                      initialValues={memberInitialValues}
-                    />
-                  )}
-                  {selectedUserType === "nutritionist" && (
-                    <NutritionistForm
-                      closeFormModal={onClose}
-                      onSubmit={(data, credentialUri, uploadUri) =>
-                        handleNutritionistFormSubmit(data, credentialUri, uploadUri)
-                      }
-                    />
-                  )}
-                </>
+    <>
+      <Modal scrollBehavior="inside" blockScrollOnMount={false} isOpen={isOpen} onClose={onClose} size="lg">
+        <ModalOverlay />
+        <ModalContent rounded="30px" alignSelf="center">
+          <ModalHeader fontSize={{ lg: "3xl", base: "xl" }}>
+            <HStack spacing={4} align="center" mb={0}>
+              {activeSlideIndex === 1 && (
+                <IconButton
+                  aria-label="Back"
+                  colorScheme="gs-yellow"
+                  variant="ghost"
+                  rounded="full"
+                  size="sm"
+                  onClick={() => swiperRef.current?.swiper.slidePrev()}
+                >
+                  <BsChevronLeft size={20} />
+                </IconButton>
               )}
-            </SwiperSlide>
-          </Box>
-        </ModalBody>
-        <ModalFooter />
-      </ModalContent>
-    </Modal>
+            </HStack>
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Box
+              as={Swiper}
+              onActiveIndexChange={(swiper: SwiperMain) => {
+                setActiveSlideIndex(swiper.activeIndex);
+              }}
+              ref={swiperRef as React.RefObject<SwiperRef>}
+              allowTouchMove={false}
+            >
+              <SwiperSlide>
+                <NewUserType
+                  onClick={() => swiperRef.current?.swiper.slideNext()}
+                  getValue={(value) => {
+                    setSelectedUserType(value);
+                  }}
+                />
+              </SwiperSlide>
+              <SwiperSlide>
+                {activeSlideIndex > 0 && (
+                  <>
+                    {selectedUserType === "member" && (
+                      <MemberRegisterForm
+                        onSubmit={handleMemberFormSubmit}
+                        onClose={onClose}
+                        initialValues={memberInitialValues}
+                      />
+                    )}
+                    {selectedUserType === "nutritionist" && (
+                      <NutritionistForm
+                        closeFormModal={onClose}
+                        onSubmit={(data, credentialUri, uploadUri) =>
+                          handleNutritionistFormSubmit(data, credentialUri, uploadUri)
+                        }
+                      />
+                    )}
+                  </>
+                )}
+              </SwiperSlide>
+            </Box>
+          </ModalBody>
+          <ModalFooter />
+        </ModalContent>
+      </Modal>
+      <AuthModal isOpen={isAuthModalOpen} onClose={onAuthModalClose} />
+    </>
   );
 };
 export default RegisterForm;
