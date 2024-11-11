@@ -52,7 +52,7 @@ export const UserMenu = () => {
             as={Button}
             rounded={"full"}
             // variant={"outline"}
-            colorScheme="gs-beige"
+            colorScheme="gs-yellow"
             // size={"sm"}
             gap={3}
           >
