@@ -16,15 +16,12 @@ export const LogoutButton = ({ as = "menuitem" }: { as: "menuitem" | "button" })
   const router = useRouter();
   async function handleLogout() {
     setIsLoading(true);
-    // setCurrentUser(null);
+    setCurrentUser(null);
     connectedAddress &&
       (await disconnectAsync().then(() => {
         router.replace("/");
       }));
-    user &&
-      (await signOut().then(() => {
-        router.replace("/");
-      }));
+    user && (await signOut({ callbackUrl: "/" }));
 
     setIsLoading(false);
   }

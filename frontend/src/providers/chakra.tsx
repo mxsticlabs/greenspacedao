@@ -37,7 +37,7 @@ export function AppChakraProvider({ children }: { children: ReactNode }) {
         router.push("/onboarding/member");
         return;
       }
-      router.push("/member/dashboard");
+      // router.push("/member/dashboard");
     }
   });
 
@@ -101,7 +101,7 @@ export function AppChakraProvider({ children }: { children: ReactNode }) {
           const authResult = await handleAuthenticate(session.id_token);
           if (authResult.result) {
             // implement a few seconds wait before creating a wallet
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
 
             const { wallets } = await createWallet();
             const baseAddress = wallets?.find((wallet) => wallet.network_name.toLowerCase() === "base")?.address;
@@ -155,13 +155,15 @@ export function AppChakraProvider({ children }: { children: ReactNode }) {
   }, [shouldUpdateAddress, connectedAddress, mutate, setAddress, setIsAuthenticated]);
 
   // Memoized callback with all dependencies
-  const getUserCb = useCallback(getUser, [user, getUser]);
+  const getUserCb = useCallback(getUser, [connectedAddress, user, getUser]);
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (!user?.username && !address) return;
+      if (!user?.username && !address && !connectedAddress) return;
       try {
-        const response = await getUserCb({ usernameOrAuthId: address || (user?.username as string) }).unwrap();
+        const response = await getUserCb({
+          usernameOrAuthId: address || connectedAddress || (user?.username as string)
+        }).unwrap();
         if (response.data) {
           setCurrentUser(response.data);
         }
@@ -170,6 +172,6 @@ export function AppChakraProvider({ children }: { children: ReactNode }) {
       }
     };
     fetchUser();
-  }, [user?.username, getUserCb, address, setCurrentUser]);
+  }, [user?.username, getUserCb, address, setCurrentUser, connectedAddress]);
   return <ChakraProvider theme={theme}>{children}</ChakraProvider>;
 }

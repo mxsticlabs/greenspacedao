@@ -7,7 +7,7 @@ export default function ArticleCards({ articles }: { articles: any[] }) {
   return (
     <Flex wrap={"wrap"} gap={5} py={5}>
       {articles?.map((article, i) => (
-        <ArticleCard key={`article-${i}-${randomID()}`} article={article} />
+        <ArticleCard key={`article-${i}`} article={article} />
       ))}
     </Flex>
   );

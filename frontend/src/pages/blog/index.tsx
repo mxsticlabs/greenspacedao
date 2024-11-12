@@ -3,38 +3,14 @@ import Footer from "src/components/Footer";
 import { HeaderNav } from "src/components/HeaderNav";
 import { useGetArticlesQuery } from "src/state/services";
 import { type Article as IArticle } from "src/types/shared";
-import {
-  Box,
-  HStack,
-  Heading,
-  Skeleton,
-  Flex,
-  LinkBox,
-  Image,
-  Text,
-  LinkOverlay,
-  useColorModeValue,
-  Stack
-} from "@chakra-ui/react";
+import { Box, Heading, Skeleton, Flex, useColorModeValue, Stack } from "@chakra-ui/react";
 import Head from "next/head";
-import NextLink from "next/link";
-import { format } from "date-fns";
-
-const MAX_CHARACTER_LENGTH = 150;
-
-const shortenText = (text: string, maxLength: number) => {
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + "...";
-};
 
 const BlogPage = () => {
   const { data, isFetching, isLoading } = useGetArticlesQuery({});
   const articles = data?.data as IArticle[];
 
   const bgColor = useColorModeValue("white", "gray.800");
-  const headingColor = useColorModeValue("gray.700", "white");
-  const metaColor = useColorModeValue("gray.600", "gray.400");
-  const hoverBgColor = useColorModeValue("gray.50", "gray.700");
 
   return (
     <>
